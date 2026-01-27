@@ -1,64 +1,61 @@
-:root {
-  --primary: #38bdf8;
-  --bg: #0f172a;
-  --card: #1e293b;
-  --text: #f8fafc;
-  --border: #334155;
+/* Reset básico para evitar desbordamientos */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
 .app-container {
-  background-color: var(--bg);
-  color: var(--text);
+  background-color: #0f172a;
+  color: #f8fafc;
   min-height: 100vh;
   padding: 20px;
-  font-family: 'Inter', sans-serif;
+  width: 100%;
+  font-family: sans-serif;
 }
 
-/* Header responsivo */
-.header { text-align: center; margin-bottom: 30px; }
-.header h1 { font-size: clamp(1.5rem, 5vw, 2.5rem); color: var(--primary); }
+.header {
+  text-align: center;
+  margin-bottom: 40px;
+}
 
-/* Grid que cambia según el tamaño de pantalla */
+/* GRID RESPONSIVO DINÁMICO */
 .grid {
   display: grid;
+  /* Crea tantas columnas de mínimo 300px como quepan en la pantalla */
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 20px;
+  width: 100%;
   max-width: 1200px;
   margin: 0 auto;
 }
 
-/* Tarjeta adaptable */
 .card {
-  background: var(--card);
-  border: 1px solid var(--border);
+  background: #1e293b;
+  border: 1px solid #334155;
   border-radius: 12px;
   padding: 20px;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  transition: transform 0.2s;
 }
 
-/* Ajustes para celulares */
-@media (max-width: 480px) {
-  .app-container { padding: 10px; }
-  .btn-group { flex-direction: column; }
-  textarea { height: 200px; }
-}
-
+/* Ajuste para que el área de texto no rompa el diseño en móviles */
 textarea {
   width: 100%;
-  height: 120px;
+  height: 150px;
+  margin: 15px 0;
   background: #0f172a;
-  color: white;
-  border: 1px solid var(--border);
+  color: #fff;
+  border: 1px solid #334155;
   border-radius: 8px;
-  padding: 10px;
-  margin: 10px 0;
-  resize: none;
-  box-sizing: border-box;
+  padding: 12px;
+  resize: none; /* Evita que el usuario deforme la tarjeta */
 }
 
-.btn-primary { background: var(--primary); color: #0f172a; padding: 12px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; width: 100%; }
-.btn-send { background: #10b981; color: white; padding: 10px; border-radius: 6px; border: none; flex: 2; cursor: pointer; }
-.btn-cancel { background: transparent; color: #94a3b8; border: 1px solid var(--border); padding: 10px; border-radius: 6px; flex: 1; cursor: pointer; }
-.btn-group { display: flex; gap: 10px; }
+/* Botones que se apilan en pantallas muy pequeñas */
+@media (max-width: 480px) {
+  .btn-group {
+    flex-direction: column;
+  }
+}
