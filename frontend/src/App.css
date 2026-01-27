@@ -1,3 +1,13 @@
+* {
+  box-sizing: border-box; /* Esto evita que los elementos se salgan de su contenedor */
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); /* Columnas que se ajustan solas */
+  gap: 20px;
+  padding: 10px;
+}
 /* Reset básico para evitar desbordamientos */
 * {
   box-sizing: border-box;
