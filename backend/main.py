@@ -1,91 +1,56 @@
-from fastapi import FastAPI, UploadFile, Depends
-from fastapi.middleware.cors import CORSMiddleware 
-from sqlalchemy.orm import Session
-from database import SessionLocal, engine
-from models import Base, Lead
-import csv
-from hf_client import generate_email
-from datetime import datetime, timedelta
+import os
+from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+import requests
 
 app = FastAPI()
 
-# Configuración de CORS: Permite que tu URL de Vercel acceda a los datos
-origins = [
-    "https://ai-sales-outreach-sandy.vercel.app",
-    "http://localhost:5173", # Para pruebas locales con Vite
-]
-
+# Configuración de CORS para que Vercel pueda hablar con Render
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True,
+    allow_origins=["*"],
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-Base.metadata.create_all(engine)
+# Base de datos de prueba
+leads = [
+    {"id": 1, "name": "Juan Perez", "company": "Empresa Test", "category": "Tecnología", "status": "new"}
+]
 
-@app.on_event("startup")
-def startup_populate():
-    db = SessionLocal()
-    # Solo crea el lead si la tabla está vacía
-    if db.query(Lead).count() == 0:
-        test_lead = Lead(
-            name="Juan Perez", 
-            email="juan@ejemplo.com", 
-            company="Empresa Test", 
-            category="Tecnología",
-            status="new"
-        )
-        db.add(test_lead)
-        db.commit()
-    db.close()
-
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
-
-@app.post("/upload")
-async def upload(file: UploadFile, db: Session = Depends(get_db)):
-    content = await file.read()
-    rows = csv.DictReader(content.decode().splitlines())
-    for r in rows:
-        db.add(Lead(**r))
-    db.commit()
-    return {"status": "success"}
+HF_TOKEN = os.getenv("HF_TOKEN")
+# Usaremos un modelo más ligero y rápido para evitar el timeout de Render
+API_URL = "https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.2"
 
 @app.get("/leads")
-def leads(db: Session = Depends(get_db)):
-    return db.query(Lead).all()
+async def get_leads():
+    return leads
 
 @app.post("/generate/{lead_id}")
-def gen(lead_id: int, db: Session = Depends(get_db)):
-    # 1. Buscamos el lead en la base de datos
-    lead = db.get(Lead, lead_id)
+async def generate_email(lead_id: int):
+    lead = next((l for l in leads if l.id == lead_id), None)
     if not lead:
-        return {"error": "Lead no encontrado"}
-    
-    # 2. Llamamos a tu función de Hugging Face
-    email_content = generate_email(lead)
-    
-    # 3. CÓDIGO NUEVO:
-    # Actualizamos el estado para que el sistema sepa que ya se envió el primero
-    lead.status = "first_sent" 
-    # Guardamos la fecha y hora exacta de hoy
-    lead.first_email_date = datetime.utcnow() 
-    
-    # 4. Guardamos los cambios en la base de datos
-    db.commit()
-    
-    return {"email": email_content}
+        raise HTTPException(status_code=404, detail="Lead no encontrado")
 
-@app.get("/followups")
-def followups(db: Session = Depends(get_db)):
-    limit = datetime.utcnow() - timedelta(days=5)
-    return db.query(Lead).filter(
-        Lead.status == "first_sent",
-        Lead.first_email_date < limit
-    ).all()
+    if not HF_TOKEN:
+        return {"email": "⚠️ Error: HF_TOKEN no configurado en Render."}
+
+    prompt = f"Write a short professional sales email for {lead['name']} from {lead['company']}. Category: {lead['category']}."
+    
+    headers = {"Authorization": f"Bearer {HF_TOKEN}"}
+    payload = {"inputs": prompt, "parameters": {"max_new_tokens": 150}}
+
+    try:
+        response = requests.post(API_URL, headers=headers, json=payload, timeout=20)
+        result = response.json()
+        
+        # Hugging Face a veces devuelve una lista o un error de 'loading'
+        if isinstance(result, list):
+            return {"email": result[0]['generated_text']}
+        elif "estimated_time" in result:
+            return {"email": "⏳ El modelo de IA se está cargando. Reintenta en 20 segundos."}
+        else:
+            return {"email": f"❌ Error de la IA: {result.get('error', 'Desconocido')}"}
+            
+    except Exception as e:
+        return {"email": f"❌ Error de conexión: {str(e)}"}
