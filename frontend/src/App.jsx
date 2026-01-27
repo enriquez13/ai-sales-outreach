@@ -12,20 +12,22 @@ function App() {
   useEffect(() => {
     fetch(`${API_URL}/leads`)
       .then(res => res.json())
-      .then(data => {
-        console.log("Leads recibidos:", data);
-        setLeads(data);
-      })
+      .then(setLeads)
       .catch(err => console.error("Error inicial:", err));
   }, []);
 
-  const handleGenerate = async (id) => {
-    setEditingId(id);
+  const handleGenerate = async (lead) => {
+    setEditingId(lead.id);
     setIsGenerating(true);
-    setCustomMessage("🪄 La IA está redactando una propuesta personalizada...");
+    setCustomMessage("🪄 La IA está redactando el correo...");
+
+    const endpoint =
+      lead.stage === "followup"
+        ? `/generate/followup/${lead.id}`
+        : `/generate/first/${lead.id}`;
 
     try {
-      const res = await fetch(`${API_URL}/generate/${id}`, {
+      const res = await fetch(`${API_URL}${endpoint}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" }
       });
@@ -35,7 +37,7 @@ function App() {
       const data = await res.json();
       setCustomMessage(data.email);
     } catch (err) {
-      setCustomMessage("❌ Error de conexión. El servidor puede estar despertando. Intenta de nuevo.");
+      setCustomMessage("❌ Error de conexión. Intenta nuevamente.");
     } finally {
       setIsGenerating(false);
     }
@@ -46,16 +48,19 @@ function App() {
       <header className="header">
         <h1>🚀 AI Sales Outreach</h1>
         <p style={{ color: "#94a3b8" }}>
-          Impulsa tus ventas con inteligencia artificial
+          Primer contacto y follow-up automático
         </p>
       </header>
 
       <div className="grid">
         {leads.map(l => (
           <div key={l.id} className="card">
-            <span className="status-badge">Nuevo</span>
 
-            <h2 style={{ margin: "10px 0" }}>{l.name}</h2>
+            <span className="status-badge">
+              {l.stage === "followup" ? "Follow-up" : "Nuevo"}
+            </span>
+
+            <h2>{l.name}</h2>
 
             <p style={{ color: "#94a3b8", marginBottom: "20px" }}>
               {l.company}
@@ -65,7 +70,6 @@ function App() {
               <div className="editor">
                 <textarea
                   value={customMessage}
-                  onChange={(e) => setCustomMessage(e.target.value)}
                   readOnly={isGenerating}
                 />
 
@@ -79,8 +83,8 @@ function App() {
 
                   <button
                     className="btn-send"
-                    onClick={() => alert("Correo aprobado")}
                     disabled={isGenerating}
+                    onClick={() => alert("Correo aprobado")}
                   >
                     Aprobar correo
                   </button>
@@ -89,9 +93,11 @@ function App() {
             ) : (
               <button
                 className="btn-primary"
-                onClick={() => handleGenerate(l.id)}
+                onClick={() => handleGenerate(l)}
               >
-                Generar Propuesta con IA
+                {l.stage === "followup"
+                  ? "Generar Follow-up"
+                  : "Generar Primer Email"}
               </button>
             )}
           </div>

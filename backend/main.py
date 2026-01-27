@@ -17,65 +17,104 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# LEADS CON ID
+# LEADS
 leads = [
     {
         "id": 1,
-        "name": "Juan Perez",
-        "company": "Empresa Test"
+        "name": "Allan",
+        "company": "Hypera",
+        "stage": "new"
     },
     {
         "id": 2,
-        "name": "María González",
-        "company": "Tech Solutions"
+        "name": "Maria Gonzalez",
+        "company": "Tech Solutions",
+        "stage": "new"
     },
     {
         "id": 3,
-        "name": "Carlos Rodríguez",
-        "company": "Innovate Corp"
-    },
-    {
-        "id": 4,
-        "name": "Ana López",
-        "company": "Digital Growth"
+        "name": "Sara Rubio",
+        "company": "TechCorp",
+        "stage": "followup"
     }
 ]
 
 @app.get("/leads")
-async def get_leads():
+def get_leads():
     return leads
 
 
-@app.post("/generate/{lead_id}")
-async def generate_email(lead_id: int):
+# PRIMER EMAIL
+@app.post("/generate/first/{lead_id}")
+def first_email(lead_id: int):
 
     lead = next((l for l in leads if l["id"] == lead_id), None)
 
     if not lead:
-        return {"email": "Cliente no encontrado"}
+        return {"email": "Lead no encontrado"}
 
     prompt = f"""
-Eres un representante de ventas llamado Alejandro Enríquez, de la compañía Compañía USP.
+Você é Felipe Ommundsen, Enterprise Sales da Delfia.
 
-Escribe un correo corto de contacto inicial (cold outreach) EN ESPAÑOL.
+Escreva um PRIMEIRO email de contato em português:
 
-Nombre del prospecto: {lead['name']}
-Empresa del prospecto: {lead['company']}
+Assunto: {lead['company']} & Delfia (Observabilidade)
 
-Incluye asunto.
-Mantén tono profesional.
-Firma como Alejandro Enríquez.
+Inclua:
+
+- saudação
+- pergunta inicial
+- Grafana
+- Cribl
+- redução de custos
+- convite final
+
+Prospecto:
+{lead['name']} – {lead['company']}
 """
 
     chat = client.chat.completions.create(
         model="llama-3.1-8b-instant",
-        messages=[
-            {"role": "user", "content": prompt}
-        ],
+        messages=[{"role": "user", "content": prompt}],
         temperature=0.6,
-        max_tokens=200,
+        max_tokens=250,
     )
 
-    return {
-        "email": chat.choices[0].message.content
-    }
+    return {"email": chat.choices[0].message.content}
+
+
+# FOLLOW UP
+@app.post("/generate/followup/{lead_id}")
+def followup_email(lead_id: int):
+
+    lead = next((l for l in leads if l["id"] == lead_id), None)
+
+    if not lead:
+        return {"email": "Lead no encontrado"}
+
+    prompt = f"""
+Segundo email de follow-up após 5 dias.
+
+Inclua:
+
+Observabilidade container  
+APM SAP  
+Logs centralizados  
+Tracing distribuído  
+Dashboards em tempo real  
+Alertas ML  
+
+Finalize convidando novamente.
+
+Prospecto:
+{lead['name']} – {lead['company']}
+"""
+
+    chat = client.chat.completions.create(
+        model="llama-3.1-8b-instant",
+        messages=[{"role": "user", "content": prompt}],
+        temperature=0.6,
+        max_tokens=250,
+    )
+
+    return {"email": chat.choices[0].message.content}
