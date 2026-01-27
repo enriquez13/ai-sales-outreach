@@ -25,6 +25,22 @@ app.add_middleware(
 
 Base.metadata.create_all(engine)
 
+@app.on_event("startup")
+def startup_populate():
+    db = SessionLocal()
+    # Solo crea el lead si la tabla está vacía
+    if db.query(Lead).count() == 0:
+        test_lead = Lead(
+            name="Juan Perez", 
+            email="juan@ejemplo.com", 
+            company="Empresa Test", 
+            category="Tecnología",
+            status="new"
+        )
+        db.add(test_lead)
+        db.commit()
+    db.close()
+
 def get_db():
     db = SessionLocal()
     try:
@@ -47,9 +63,24 @@ def leads(db: Session = Depends(get_db)):
 
 @app.post("/generate/{lead_id}")
 def gen(lead_id: int, db: Session = Depends(get_db)):
+    # 1. Buscamos el lead en la base de datos
     lead = db.get(Lead, lead_id)
-    email = generate_email(lead)
-    return {"email": email}
+    if not lead:
+        return {"error": "Lead no encontrado"}
+    
+    # 2. Llamamos a tu función de Hugging Face
+    email_content = generate_email(lead)
+    
+    # 3. CÓDIGO NUEVO:
+    # Actualizamos el estado para que el sistema sepa que ya se envió el primero
+    lead.status = "first_sent" 
+    # Guardamos la fecha y hora exacta de hoy
+    lead.first_email_date = datetime.utcnow() 
+    
+    # 4. Guardamos los cambios en la base de datos
+    db.commit()
+    
+    return {"email": email_content}
 
 @app.get("/followups")
 def followups(db: Session = Depends(get_db)):
