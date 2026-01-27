@@ -202,3 +202,25 @@ textarea {
     font-size: 14px;
   }
 }
+/* Quita scroll horizontal global */
+html, body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+/* Forzar una sola columna en móviles */
+@media (max-width: 768px) {
+  .grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* Cards nunca más grandes que viewport */
+.card {
+  max-width: 100%;
+}
+
+/* Todo contenido interno respeta ancho */
+.card * {
+  max-width: 100%;
+}
