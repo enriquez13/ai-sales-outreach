@@ -3,110 +3,75 @@ import "./App.css";
 
 function App() {
   const [leads, setLeads] = useState([]);
-  const [followups, setFollowups] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState(null);
   const [customMessage, setCustomMessage] = useState("");
+  const [isGenerating, setIsGenerating] = useState(false);
 
   const API_URL = "https://ai-sales-outreach-6umb.onrender.com";
 
-  const loadData = async () => {
-    try {
-      const [resLeads, resFollows] = await Promise.all([
-        fetch(`${API_URL}/leads`),
-        fetch(`${API_URL}/followups`)
-      ]);
-      setLeads(await resLeads.json());
-      setFollowups(await resFollows.json());
-    } catch (err) {
-      console.error("Error:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => { loadData(); }, []);
+  useEffect(() => {
+    fetch(`${API_URL}/leads`)
+      .then(res => res.json())
+      .then(setLeads)
+      .catch(err => console.error("Error inicial:", err));
+  }, []);
 
   const handleGenerate = async (id) => {
     setEditingId(id);
-    setCustomMessage("🪄 La IA está redactando tu mensaje...");
+    setIsGenerating(true);
+    setCustomMessage("🪄 La IA está redactando una propuesta personalizada...");
+    
     try {
-      const res = await fetch(`${API_URL}/generate/${id}`, { method: "POST" });
+      const res = await fetch(`${API_URL}/generate/${id}`, { 
+        method: "POST",
+        headers: { "Content-Type": "application/json" }
+      });
+      
+      if (!res.ok) throw new Error("Servidor ocupado");
+      
       const data = await res.json();
-      setCustomMessage(data.email || "No se pudo generar el texto.");
-      loadData(); 
+      setCustomMessage(data.email);
     } catch (err) {
-      setCustomMessage("Error al conectar con el servidor.");
+      setCustomMessage("❌ Error de conexión. El servidor de Render podría estar 'despertando'. Intenta de nuevo en 10 segundos.");
+    } finally {
+      setIsGenerating(false);
     }
-  };
-
-  const handleSend = (email) => {
-    // Aquí podrías integrar un servicio de email real
-    alert(`Mensaje enviado a ${email}`);
-    setEditingId(null);
   };
 
   return (
     <div className="app-container">
       <header className="header">
         <h1>🚀 AI Sales Outreach</h1>
-        <p>Automatiza tus ventas con inteligencia artificial</p>
+        <p style={{color: '#94a3b8'}}>Impulsa tus ventas con inteligencia artificial</p>
       </header>
 
-      {/* SECCIÓN DE ALERTAS */}
-      {followups.length > 0 && (
-        <section className="section">
-          <h2 className="section-title">⚠️ Seguimientos Sugeridos (+5 días)</h2>
-          {followups.map(f => (
-            <div key={f.id} className="card-followup">
-              <div>
-                <strong>{f.name}</strong> • {f.company}
+      <div className="grid">
+        {leads.map(l => (
+          <div key={l.id} className="card">
+            <span className="status-badge">{l.status}</span>
+            <h2 style={{margin: '0 0 5px 0', fontSize: '1.5rem'}}>{l.name}</h2>
+            <p style={{color: '#94a3b8', marginBottom: '20px'}}>{l.company} • {l.category}</p>
+
+            {editingId === l.id ? (
+              <div className="editor">
+                <textarea 
+                  value={customMessage} 
+                  onChange={(e) => setCustomMessage(e.target.value)}
+                  readOnly={isGenerating}
+                />
+                <div className="btn-group">
+                  <button className="btn-cancel" onClick={() => setEditingId(null)}>Descartar</button>
+                  <button className="btn-send" onClick={() => alert("¡Email enviado!")} disabled={isGenerating}>Enviar Correo</button>
+                </div>
               </div>
-              <button className="btn-warning" onClick={() => handleGenerate(f.id)}>
-                Preparar Seguimiento
+            ) : (
+              <button className="btn-primary" onClick={() => handleGenerate(l.id)}>
+                Generar Propuesta con IA
               </button>
-            </div>
-          ))}
-        </section>
-      )}
-
-      {/* LISTA PRINCIPAL */}
-      <section className="section">
-        <h2 className="section-title">📋 Dashboard de Leads</h2>
-        {loading ? <p>Cargando datos...</p> : (
-          <div className="grid">
-            {leads.map(l => (
-              <div key={l.id} className="card">
-                <span className="badge">{l.status}</span>
-                <h3>{l.name}</h3>
-                <p style={{color: 'var(--text-dim)', marginBottom: '20px'}}>
-                  {l.company} • {l.category}
-                </p>
-
-                {editingId === l.id ? (
-                  <div className="editor-area">
-                    <textarea 
-                      value={customMessage} 
-                      onChange={(e) => setCustomMessage(e.target.value)}
-                    />
-                    <div style={{display: 'flex', gap: '10px'}}>
-                      <button className="btn-cancel" onClick={() => setEditingId(null)}>Descartar</button>
-                      <button className="btn-send" onClick={() => handleSend(l.email)}>Enviar Correo</button>
-                    </div>
-                  </div>
-                ) : (
-                  <button 
-                    className={l.status === 'new' ? 'btn-primary' : 'btn-disabled'}
-                    onClick={() => l.status === 'new' && handleGenerate(l.id)}
-                  >
-                    {l.status === 'new' ? 'Generar Propuesta con IA' : '✓ Contactado'}
-                  </button>
-                )}
-              </div>
-            ))}
+            )}
           </div>
-        )}
-      </section>
+        ))}
+      </div>
     </div>
   );
 }
