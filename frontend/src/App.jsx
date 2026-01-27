@@ -1,34 +1,43 @@
-import {useEffect,useState} from "react"
+import { useEffect, useState } from "react"
 
-function App(){
+function App() {
+  const [leads, setLeads] = useState([])
 
-const [leads,setLeads]=useState([])
+  // 1. Definimos la URL base. 
+  // Vercel usará la variable que pusimos en su panel, 
+  // y tu PC usará localhost por defecto.
+  const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
 
-useEffect(()=>{
- fetch("http://localhost:8000/leads")
- .then(r=>r.json())
- .then(setLeads)
-},[])
+  useEffect(() => {
+    // 2. Usamos ${API_URL} en lugar de escribir la dirección completa
+    fetch(`${API_URL}/leads`)
+      .then(r => r.json())
+      .then(setLeads)
+      .catch(err => console.error("Error cargando leads:", err))
+  }, [API_URL])
 
-return (
-<div>
-<h2>Leads</h2>
+  function generate(id) {
+    // 3. Aplicamos lo mismo para la función de generar
+    fetch(`${API_URL}/generate/${id}`, { method: "POST" })
+      .then(r => r.json())
+      .then(console.log)
+      .catch(err => console.error("Error generando:", err))
+  }
 
-{leads.map(l=>(
-<div key={l.id}>
-{l.name} - {l.company}
-<button onClick={()=>generate(l.id)}>Generate</button>
-</div>
-))}
-</div>
-)
-
-function generate(id){
-fetch(`http://localhost:8000/generate/${id}`,{method:"POST"})
-.then(r=>r.json())
-.then(console.log)
-}
-
+  return (
+    <div style={{ padding: "20px" }}>
+      <h2>Leads</h2>
+      {leads.length === 0 && <p>Cargando leads o no hay conexión con el backend...</p>}
+      {leads.map(l => (
+        <div key={l.id} style={{ marginBottom: "10px", borderBottom: "1px solid #ccc" }}>
+          <strong>{l.name}</strong> - {l.company} 
+          <button onClick={() => generate(l.id)} style={{ marginLeft: "10px" }}>
+            Generate Email
+          </button>
+        </div>
+      ))}
+    </div>
+  )
 }
 
 export default App
