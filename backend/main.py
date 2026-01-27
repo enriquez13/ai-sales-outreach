@@ -17,9 +17,25 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-leads_db = [
-    {"id": 1, "name": "Juan Perez", "company": "Meta"}
+leads = [
+    {
+        "name": "Juan Perez",
+        "company": "Empresa Test"
+    },
+    {
+        "name": "María González",
+        "company": "Tech Solutions"
+    },
+    {
+        "name": "Carlos Rodríguez",
+        "company": "Innovate Corp"
+    },
+    {
+        "name": "Ana López",
+        "company": "Digital Growth"
+    }
 ]
+
 
 @app.get("/leads")
 async def get_leads():
