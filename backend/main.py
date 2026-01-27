@@ -84,7 +84,7 @@ def gen(lead_id: int, db: Session = Depends(get_db)):
 
 @app.get("/followups")
 def followups(db: Session = Depends(get_db)):
-    limit = datetime.utcnow() - timedelta(days=10)
+    limit = datetime.utcnow() - timedelta(days=5)
     return db.query(Lead).filter(
         Lead.status == "first_sent",
         Lead.first_email_date < limit
