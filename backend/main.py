@@ -17,53 +17,55 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# LEADS CON ID
 leads = [
     {
+        "id": 1,
         "name": "Juan Perez",
         "company": "Empresa Test"
     },
     {
+        "id": 2,
         "name": "María González",
         "company": "Tech Solutions"
     },
     {
+        "id": 3,
         "name": "Carlos Rodríguez",
         "company": "Innovate Corp"
     },
     {
+        "id": 4,
         "name": "Ana López",
         "company": "Digital Growth"
     }
 ]
 
-
 @app.get("/leads")
 async def get_leads():
-    return leads_db
+    return leads
 
 
 @app.post("/generate/{lead_id}")
 async def generate_email(lead_id: int):
 
-    lead = next((l for l in leads_db if l["id"] == lead_id), None)
+    lead = next((l for l in leads if l["id"] == lead_id), None)
 
     if not lead:
         return {"email": "Cliente no encontrado"}
 
     prompt = f"""
-Eres un representante de ventas llamado llamado Alejandro Enríquez, de la compañia Compañía USP.
+Eres un representante de ventas llamado Alejandro Enríquez, de la compañía Compañía USP.
 
-Escribe un correo corto de contacto inicial (cold outreach) EN ESPAÑOL para el siguiente prospecto:
+Escribe un correo corto de contacto inicial (cold outreach) EN ESPAÑOL.
 
 Nombre del prospecto: {lead['name']}
 Empresa del prospecto: {lead['company']}
 
-NO finjas ser el prospecto.
-Mantén el mensaje profesional y conciso.
 Incluye asunto.
+Mantén tono profesional.
+Firma como Alejandro Enríquez.
 """
-
-
 
     chat = client.chat.completions.create(
         model="llama-3.1-8b-instant",
