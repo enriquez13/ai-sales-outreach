@@ -160,3 +160,45 @@ button {
     min-height: 140px;
   }
 }
+
+.card {
+  overflow: hidden;
+}
+
+/* Evita desbordes de texto largos */
+textarea,
+.editor,
+.card p,
+.card h2 {
+  max-width: 100%;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+/* Textarea responsive */
+textarea {
+  width: 100%;
+  min-height: 160px;
+}
+
+/* Botones siempre dentro */
+.btn-group {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.btn-group button {
+  flex: 1;
+}
+
+/* Mejora móvil */
+@media (max-width: 600px) {
+  .card {
+    padding: 15px;
+  }
+
+  textarea {
+    font-size: 14px;
+  }
+}
