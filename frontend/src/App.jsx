@@ -1,69 +1,111 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
+import "./App.css";
 
 function App() {
   const [leads, setLeads] = useState([]);
   const [followups, setFollowups] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState(null);
   const [customMessage, setCustomMessage] = useState("");
-  
+
   const API_URL = "https://ai-sales-outreach-6umb.onrender.com";
 
-  const loadData = () => {
-    fetch(`${API_URL}/leads`).then(res => res.json()).then(setLeads);
-    fetch(`${API_URL}/followups`).then(res => res.json()).then(setFollowups);
+  const loadData = async () => {
+    try {
+      const [resLeads, resFollows] = await Promise.all([
+        fetch(`${API_URL}/leads`),
+        fetch(`${API_URL}/followups`)
+      ]);
+      setLeads(await resLeads.json());
+      setFollowups(await resFollows.json());
+    } catch (err) {
+      console.error("Error:", err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => { loadData(); }, []);
 
-  const startFollowup = (lead) => {
-    setEditingId(lead.id);
-    setCustomMessage(`Hola ${lead.name}, hace unos días te contacté sobre ${lead.company}. ¿Pudiste revisar mi propuesta?`);
+  const handleGenerate = async (id) => {
+    setEditingId(id);
+    setCustomMessage("🪄 La IA está redactando tu mensaje...");
+    try {
+      const res = await fetch(`${API_URL}/generate/${id}`, { method: "POST" });
+      const data = await res.json();
+      setCustomMessage(data.email || "No se pudo generar el texto.");
+      loadData(); 
+    } catch (err) {
+      setCustomMessage("Error al conectar con el servidor.");
+    }
   };
 
-  const finalizeSend = (id) => {
-    alert(`Enviando a lead #${id}: ${customMessage}`);
-    // Aquí podrías hacer un fetch a un endpoint de envío real
+  const handleSend = (email) => {
+    // Aquí podrías integrar un servicio de email real
+    alert(`Mensaje enviado a ${email}`);
     setEditingId(null);
   };
 
   return (
-    <div style={{ padding: '20px', backgroundColor: '#121212', color: 'white', minHeight: '100vh' }}>
-      <h1>Ventas con IA</h1>
+    <div className="app-container">
+      <header className="header">
+        <h1>🚀 AI Sales Outreach</h1>
+        <p>Automatiza tus ventas con inteligencia artificial</p>
+      </header>
 
-      <section style={{ border: '2px solid #f1c40f', padding: '15px', borderRadius: '8px' }}>
-        <h2>🔔 Notificaciones de Seguimiento (+5 días)</h2>
-        {followups.length === 0 ? <p>Todo al día. No hay seguimientos pendientes.</p> : 
-          followups.map(f => (
-            <div key={f.id} style={{ marginBottom: '10px', background: '#333', padding: '10px' }}>
-              <strong>{f.name}</strong> - {f.company} 
-              <button onClick={() => startFollowup(f)} style={{ marginLeft: '10px' }}>Preparar Mensaje</button>
-              
-              {editingId === f.id && (
-                <div style={{ marginTop: '10px' }}>
-                  <textarea 
-                    value={customMessage} 
-                    onChange={(e) => setCustomMessage(e.target.value)}
-                    style={{ width: '100%', height: '80px', borderRadius: '5px' }}
-                  />
-                  <button onClick={() => finalizeSend(f.id)} style={{ backgroundColor: '#2ecc71', color: 'white', marginTop: '5px' }}>
-                    Enviar Sugerencia Editada
-                  </button>
-                </div>
-              )}
+      {/* SECCIÓN DE ALERTAS */}
+      {followups.length > 0 && (
+        <section className="section">
+          <h2 className="section-title">⚠️ Seguimientos Sugeridos (+5 días)</h2>
+          {followups.map(f => (
+            <div key={f.id} className="card-followup">
+              <div>
+                <strong>{f.name}</strong> • {f.company}
+              </div>
+              <button className="btn-warning" onClick={() => handleGenerate(f.id)}>
+                Preparar Seguimiento
+              </button>
             </div>
-          ))
-        }
-      </section>
+          ))}
+        </section>
+      )}
 
-      <hr style={{ margin: '30px 0' }} />
+      {/* LISTA PRINCIPAL */}
+      <section className="section">
+        <h2 className="section-title">📋 Dashboard de Leads</h2>
+        {loading ? <p>Cargando datos...</p> : (
+          <div className="grid">
+            {leads.map(l => (
+              <div key={l.id} className="card">
+                <span className="badge">{l.status}</span>
+                <h3>{l.name}</h3>
+                <p style={{color: 'var(--text-dim)', marginBottom: '20px'}}>
+                  {l.company} • {l.category}
+                </p>
 
-      <section>
-        <h2>Lista General de Leads</h2>
-        {leads.map(l => (
-          <div key={l.id} style={{ padding: '5px', borderBottom: '1px solid #444' }}>
-            {l.name} - <span style={{ color: '#3498db' }}>{l.status}</span>
+                {editingId === l.id ? (
+                  <div className="editor-area">
+                    <textarea 
+                      value={customMessage} 
+                      onChange={(e) => setCustomMessage(e.target.value)}
+                    />
+                    <div style={{display: 'flex', gap: '10px'}}>
+                      <button className="btn-cancel" onClick={() => setEditingId(null)}>Descartar</button>
+                      <button className="btn-send" onClick={() => handleSend(l.email)}>Enviar Correo</button>
+                    </div>
+                  </div>
+                ) : (
+                  <button 
+                    className={l.status === 'new' ? 'btn-primary' : 'btn-disabled'}
+                    onClick={() => l.status === 'new' && handleGenerate(l.id)}
+                  >
+                    {l.status === 'new' ? 'Generar Propuesta con IA' : '✓ Contactado'}
+                  </button>
+                )}
+              </div>
+            ))}
           </div>
-        ))}
+        )}
       </section>
     </div>
   );
