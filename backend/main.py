@@ -18,7 +18,7 @@ app.add_middleware(
 )
 
 leads_db = [
-    {"id": 1, "name": "Juan Perez", "company": "Empresa Test"}
+    {"id": 1, "name": "Juan Perez", "company": "Meta"}
 ]
 
 @app.get("/leads")
@@ -35,17 +35,18 @@ async def generate_email(lead_id: int):
         return {"email": "Cliente no encontrado"}
 
     prompt = f"""
-You are a sales representative.
+Eres un representante de ventas llamado llamado Alejandro Enríquez, de la compañia Compañía USP.
 
-Write a short cold outreach email TO the following prospect:
+Escribe un correo corto de contacto inicial (cold outreach) EN ESPAÑOL para el siguiente prospecto:
 
-Prospect name: {lead['name']}
-Prospect company: {lead['company']}
+Nombre del prospecto: {lead['name']}
+Empresa del prospecto: {lead['company']}
 
-Do NOT pretend to be the prospect.
-Keep it concise and professional.
-Include a subject line.
+NO finjas ser el prospecto.
+Mantén el mensaje profesional y conciso.
+Incluye asunto.
 """
+
 
 
     chat = client.chat.completions.create(

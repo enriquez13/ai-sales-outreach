@@ -48,7 +48,7 @@ function App() {
       <div className="grid">
         {leads.map(l => (
           <div key={l.id} className="card">
-            <span className="status-badge">Nuevo</span>
+            <span className="status-badge">Mensaje por enviar</span>
             <h2 style={{margin: '0 0 5px 0', fontSize: '1.5rem'}}>{l.name}</h2>
             <p style={{color: '#94a3b8', marginBottom: '20px'}}>{l.company} • {l.category}</p>
 
