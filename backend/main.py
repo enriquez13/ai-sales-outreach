@@ -32,7 +32,7 @@ async def generate_email(lead_id: int):
 
     # 3. Llamada a un modelo más rápido (DistilGPT2)
     # Cambié Mistral por este porque responde instantáneamente para pruebas
-    api_url = "https://api-inference.huggingface.co/models/distilgpt2"
+    api_url = "https://router.huggingface.co/hf-inference/models/distilgpt2"
     headers = {"Authorization": f"Bearer {token}"}
     prompt = f"Write a professional email for {lead['name']} from {lead['company']}:"
 
