@@ -1,71 +1,162 @@
-* {
-  box-sizing: border-box; /* Esto evita que los elementos se salgan de su contenedor */
-}
-
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); /* Columnas que se ajustan solas */
-  gap: 20px;
-  padding: 10px;
-}
-/* Reset básico para evitar desbordamientos */
+/* RESET */
 * {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
 }
 
-.app-container {
-  background-color: #0f172a;
-  color: #f8fafc;
-  min-height: 100vh;
-  padding: 20px;
-  width: 100%;
-  font-family: sans-serif;
+/* ROOT */
+
+body {
+  background: #020617;
 }
+
+.app-container {
+  min-height: 100vh;
+  width: 100%;
+  background: linear-gradient(180deg, #020617, #020617);
+  color: #f8fafc;
+  padding: 20px;
+  font-family: system-ui, sans-serif;
+  display: flex;
+  flex-direction: column;
+}
+
+/* HEADER */
 
 .header {
   text-align: center;
   margin-bottom: 40px;
 }
 
-/* GRID RESPONSIVO DINÁMICO */
-.grid {
-  display: grid;
-  /* Crea tantas columnas de mínimo 300px como quepan en la pantalla */
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 20px;
-  width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
+.header h1 {
+  font-size: 2rem;
 }
 
+.header p {
+  margin-top: 8px;
+  color: #94a3b8;
+}
+
+/* GRID RESPONSIVE REAL */
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* CARD */
+
 .card {
-  background: #1e293b;
-  border: 1px solid #334155;
-  border-radius: 12px;
+  background: #020617;
+  border: 1px solid #1e293b;
+  border-radius: 16px;
   padding: 20px;
   display: flex;
   flex-direction: column;
-  transition: transform 0.2s;
+  gap: 12px;
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.02);
 }
 
-/* Ajuste para que el área de texto no rompa el diseño en móviles */
+.card h2 {
+  font-size: 1.3rem;
+}
+
+.card p {
+  color: #94a3b8;
+}
+
+/* STATUS */
+
+.status-badge {
+  align-self: flex-start;
+  background: #0ea5e9;
+  color: black;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+/* TEXTAREA */
+
 textarea {
   width: 100%;
-  height: 150px;
-  margin: 15px 0;
-  background: #0f172a;
-  color: #fff;
-  border: 1px solid #334155;
-  border-radius: 8px;
+  min-height: 160px;
+  background: #020617;
+  border: 1px solid #1e293b;
+  border-radius: 12px;
   padding: 12px;
-  resize: none; /* Evita que el usuario deforme la tarjeta */
+  color: white;
+  resize: none;
+  font-size: 0.9rem;
 }
 
-/* Botones que se apilan en pantallas muy pequeñas */
-@media (max-width: 480px) {
+/* BUTTONS */
+
+button {
+  cursor: pointer;
+  border-radius: 10px;
+  border: none;
+  padding: 10px 14px;
+  font-weight: 600;
+}
+
+.btn-primary {
+  background: #0ea5e9;
+  color: black;
+}
+
+.btn-primary:hover {
+  opacity: 0.9;
+}
+
+.btn-group {
+  display: flex;
+  gap: 10px;
+}
+
+.btn-send {
+  background: #22c55e;
+  color: black;
+  flex: 1;
+}
+
+.btn-cancel {
+  background: #334155;
+  color: white;
+  flex: 1;
+}
+
+/* EDITOR */
+
+.editor {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* MOBILE */
+
+@media (max-width: 600px) {
+
+  .app-container {
+    padding: 12px;
+  }
+
+  .header h1 {
+    font-size: 1.6rem;
+  }
+
   .btn-group {
     flex-direction: column;
+  }
+
+  textarea {
+    min-height: 140px;
   }
 }
