@@ -46,7 +46,7 @@ function App() {
       <header className="header">
         <div className="header-top">
           <div className="logo">
-             <span className="logo-icon">🧠</span>
+             <span className="logo-icon">🚀</span>
              <span>AI Sales Connect</span>
           </div>
           <div className="user-avatar">AE</div>
