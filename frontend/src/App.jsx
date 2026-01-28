@@ -19,7 +19,7 @@ function App() {
   const handleGenerate = async (lead) => {
     setEditingId(lead.id);
     setIsGenerating(true);
-    setCustomMessage("🪄 La IA está redactando el correo...");
+    setCustomMessage("🪄 A IA está redigindo o e-mail...");
 
     const endpoint =
       lead.stage === "followup"
@@ -48,7 +48,7 @@ function App() {
       <header className="header">
         <h1>🚀 AI Sales Outreach</h1>
         <p style={{ color: "#94a3b8" }}>
-          Primer contacto y follow-up automático
+          Primeiro contato e acompanhamento automático
         </p>
       </header>
 
@@ -57,7 +57,7 @@ function App() {
           <div key={l.id} className="card">
 
             <span className="status-badge">
-              {l.stage === "followup" ? "Follow-up" : "Nuevo"}
+              {l.stage === "followup" ? "Follow-up" : "New"}
             </span>
 
             <h2>{l.name}</h2>

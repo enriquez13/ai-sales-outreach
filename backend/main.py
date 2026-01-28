@@ -56,18 +56,41 @@ def first_email(lead_id: int):
     prompt = f"""
 Você é Felipe Ommundsen, Enterprise Sales da Delfia.
 
-Escreva um PRIMEIRO email de contato em português:
+Escreva um PRIMEIRO email de contato (cold email) em português.
+
+Objetivo: iniciar conversa, não vender.
+
+REGRAS OBRIGATÓRIAS:
+- NÃO assuma relacionamento prévio
+- NÃO diga que já conversamos
+- NÃO escreva email longo
+- NÃO use linguagem corporativa genérica
+- Tom humano, direto e profissional
 
 Assunto: {lead['company']} & Delfia (Observabilidade)
 
-Inclua:
+Corpo:
 
-- saudação
-- pergunta inicial
-- Grafana
-- Cribl
-- redução de custos
-- convite final
+1. Cumprimento curto usando {lead['name']}
+2. Frase direta explicando o motivo do contato
+3. Uma pergunta aberta relacionada a desafios técnicos
+4. 2–3 bullets com exemplos de valor
+5. Pergunta final simples
+
+Temas permitidos:
+- Observabilidade de aplicações
+- Monitoramento SAP S/4HANA
+- Logs centralizados
+- Alertas inteligentes
+- Performance de containers
+
+Finalize com:
+
+"Faz sentido conversarmos por 15 minutos?"
+Assinatura:
+Felipe Ommundsen  
+Enterprise Sales
+Delfia 
 
 Prospecto:
 {lead['name']} – {lead['company']}
@@ -93,21 +116,41 @@ def followup_email(lead_id: int):
         return {"email": "Lead no encontrado"}
 
     prompt = f"""
-Segundo email de follow-up após 5 dias.
+Você é Felipe Ommundsen, Enterprise Sales da Delfia.
 
-Inclua:
+Escreva um SEGUNDO email de follow-up (após 5 dias) em português.
 
-Observabilidade container  
-APM SAP  
-Logs centralizados  
-Tracing distribuído  
-Dashboards em tempo real  
-Alertas ML  
+REGRAS OBRIGATÓRIAS:
+- NÃO diga que houve conversa anterior
+- NÃO diga “seguindo nossa conversa”
+- NÃO assuma contato prévio
+- NÃO escreva email longo
+- Seja direto, comercial e objetivo
 
-Finalize convidando novamente.
+Estrutura OBRIGATÓRIA:
 
-Prospecto:
-{lead['name']} – {lead['company']}
+Assunto: {lead['company']} & Delfia (Observabilidade)
+
+Corpo:
+- Cumprimento curto
+- Pergunta retórica simples
+- Lista curta de temas relevantes (bullet points)
+- Convite final curto
+
+Inclua APENAS estes temas:
+- Observabilidade container (Prometheus, Grafana, Elastic Stack)
+- APM para SAP S/4HANA
+- Log aggregation centralizado
+- Distributed tracing
+- Dashboards operacionais
+- Alertas preditivos com ML
+
+Finalize com:
+"Vamos trazer esses ganhos para a {lead['company']}?"
+
+Assinatura:
+Felipe Ommundsen  
+Enterprise Sales – Delfia
 """
 
     chat = client.chat.completions.create(
