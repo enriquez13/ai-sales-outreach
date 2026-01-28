@@ -95,7 +95,7 @@ function App() {
                   </div>
                 ) : (
                   <div className="email-result">
-                    <h3>AI-Crafted Email</h3>
+                    <h3>Send email</h3>
                     <textarea
                       value={customMessage}
                       onChange={(e) => setCustomMessage(e.target.value)}
