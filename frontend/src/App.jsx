@@ -16,33 +16,30 @@ function App() {
       .catch(err => console.error("Error inicial:", err));
   }, []);
 
+  // --- FUNCIÓN 1: ENVIAR EMAIL (Mailto) ---
+  const handleSendEmail = (lead, message) => {
+    if (!lead) return;
+    
+    const subject = lead.stage === "followup" 
+      ? `Seguimiento: Oportunidad con ${lead.company}` 
+      : `Propuesta de colaboración - ${lead.company}`;
+      
+    const mailtoLink = `mailto:${lead.email || ''}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(message)}`;
+    
+    window.location.href = mailtoLink;
+    setEditingId(null);
+  };
+
+  // --- FUNCIÓN 2: GENERAR CON IA ---
   const handleGenerate = async (lead) => {
-    // LÓGICA DE TOGGLE: Si ya está abierto, se cierra al hacer clic
     if (editingId === lead.id) {
       setEditingId(null);
       return;
     }
 
-    const handleSendEmail = (lead, message) => {
-  // Definimos el asunto según el estado
-  const subject = lead.stage === "followup" 
-    ? `Seguimiento: Oportunidad con ${lead.company}` 
-    : `Propuesta de colaboración - ${lead.company}`;
-    
-  // Construimos el link mailto
-  // Importante: encodeURIComponent evita que los espacios rompan el link
-  const mailtoLink = `mailto:${lead.email || ''}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(message)}`;
-  
-  // Abrimos Outlook automáticamente
-  window.location.href = mailtoLink;
-  
-  // Opcional: Cerramos el modal después de enviar
-  setEditingId(null);
-};
-
     setEditingId(lead.id);
     setIsGenerating(true);
-    setCustomMessage(""); // Limpiar para mostrar el estado de carga
+    setCustomMessage(""); 
 
     const endpoint =
       lead.stage === "followup"
@@ -64,7 +61,6 @@ function App() {
     }
   };
 
-  // Función interna para renderizar la tarjeta (evita duplicar código)
   const renderCard = (l) => (
     <div key={l.id} className={`card ${editingId === l.id ? 'active' : ''}`}>
       <div className="card-content">
@@ -91,33 +87,6 @@ function App() {
           )}
         </button>
       </div>
-
-      {editingId === l.id && (
-        <div className="editor-overlay">
-          {isGenerating ? (
-            <div className="skeleton-container">
-              <div className="skeleton-line"></div>
-              <div className="skeleton-line"></div>
-              <div className="skeleton-line short"></div>
-            </div>
-          ) : (
-            <div className="email-result">
-              <div className="result-header">
-                <h3>Email created by AI</h3>
-              </div>
-              <textarea
-                value={customMessage}
-                onChange={(e) => setCustomMessage(e.target.value)}
-                spellCheck="false"
-              />
-              <div className="btn-group">
-                <button className="btn-cancel" onClick={() => setEditingId(null)}>Descartar</button>
-                <button className="btn-send" onClick={() => {alert("Copiado al portapapeles!"); setEditingId(null)}}>Enviar Email</button>
-              </div>
-            </div>
-          )}
-        </div>
-      )}
     </div>
   );
 
@@ -138,7 +107,6 @@ function App() {
       </header>
 
       <main className="main-content">
-        {/* CONTENEDOR 1: NEW LEADS */}
         <section className="category-section">
           <h3 className="section-title">
             Nuevos Prospectos 
@@ -149,7 +117,6 @@ function App() {
           </div>
         </section>
 
-        {/* CONTENEDOR 2: FOLLOW-UP */}
         <section className="category-section">
           <h3 className="section-title">
             Seguimientos Pendientes
@@ -160,40 +127,41 @@ function App() {
           </div>
         </section>
       </main>
-      {/* Coloca esto justo antes de cerrar el último </div> de app-container */}
-{editingId && (
-  <div className="modal-overlay" onClick={() => setEditingId(null)}>
-    <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-      <button className="modal-close" onClick={() => setEditingId(null)}>✕</button>
-      
-      {isGenerating ? (
-        <div className="skeleton-container">
-          <p className="loading-text">🪄 Llama 3 redactando...</p>
-          <div className="skeleton-line"></div>
-          <div className="skeleton-line"></div>
-          <div className="skeleton-line short"></div>
-        </div>
-      ) : (
-        <div className="email-result">
-          <h3>AI-Crafted Email</h3>
-          <textarea
-            value={customMessage}
-            onChange={(e) => setCustomMessage(e.target.value)}
-            spellCheck="false"
-          />
-          <div className="btn-group-modal">
-  <button 
-    className="btn-send-modal" 
-    onClick={() => handleSendEmail(leads.find(l => l.id === editingId), customMessage)}
-  >
-    📧 Enviar vía Outlook
-  </button>
-</div>
+
+      {/* MODAL CORREGIDO */}
+      {editingId && (
+        <div className="modal-overlay" onClick={() => setEditingId(null)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <button className="modal-close" onClick={() => setEditingId(null)}>✕</button>
+            
+            {isGenerating ? (
+              <div className="skeleton-container">
+                <p className="loading-text">🪄 Llama 3 redactando...</p>
+                <div className="skeleton-line"></div>
+                <div className="skeleton-line"></div>
+                <div className="skeleton-line short"></div>
+              </div>
+            ) : (
+              <div className="email-result">
+                <h3>AI-Crafted Email</h3>
+                <textarea
+                  value={customMessage}
+                  onChange={(e) => setCustomMessage(e.target.value)}
+                  spellCheck="false"
+                />
+                <div className="btn-group-modal">
+                  <button 
+                    className="btn-send-modal" 
+                    onClick={() => handleSendEmail(leads.find(l => l.id === editingId), customMessage)}
+                  >
+                    📧 Enviar vía Outlook
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       )}
-    </div>
-  </div>
-)}
     </div>
   );
 }
