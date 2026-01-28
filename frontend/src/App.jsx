@@ -17,18 +17,21 @@ function App() {
   }, []);
 
   // --- FUNCIÓN 1: ENVIAR EMAIL (Mailto) ---
-  const handleSendEmail = (lead, message) => {
-    if (!lead) return;
+const handleSendEmail = (lead, message) => {
+  if (!lead) return;
+  
+  // Fijamos el asunto exactamente como lo pides
+  // Usamos el nombre de la empresa que viene del lead + el texto fijo
+  const subject = `${lead.company} & Delfia (Observabilidade)`;
     
-    const subject = lead.stage === "followup" 
-      ? `Seguimiento: Oportunidad con ${lead.company}` 
-      : `Propuesta de colaboración - ${lead.company}`;
-      
-    const mailtoLink = `mailto:${lead.email || ''}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(message)}`;
-    
-    window.location.href = mailtoLink;
-    setEditingId(null);
-  };
+  // Construimos el link mailto con el nuevo asunto fijo
+  const mailtoLink = `mailto:${lead.email || ''}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(message)}`;
+  
+  // Abrimos Outlook automáticamente
+  window.location.href = mailtoLink;
+  
+  setEditingId(null);
+};
 
   // --- FUNCIÓN 2: GENERAR CON IA ---
   const handleGenerate = async (lead) => {
