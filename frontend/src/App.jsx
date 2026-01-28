@@ -143,6 +143,37 @@ function App() {
           </div>
         </section>
       </main>
+      {/* Coloca esto justo antes de cerrar el último </div> de app-container */}
+{editingId && (
+  <div className="modal-overlay" onClick={() => setEditingId(null)}>
+    <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+      <button className="modal-close" onClick={() => setEditingId(null)}>✕</button>
+      
+      {isGenerating ? (
+        <div className="skeleton-container">
+          <p className="loading-text">🪄 Llama 3 redactando...</p>
+          <div className="skeleton-line"></div>
+          <div className="skeleton-line"></div>
+          <div className="skeleton-line short"></div>
+        </div>
+      ) : (
+        <div className="email-result">
+          <h3>AI-Crafted Email</h3>
+          <textarea
+            value={customMessage}
+            onChange={(e) => setCustomMessage(e.target.value)}
+            spellCheck="false"
+          />
+          <div className="btn-group-modal">
+            <button className="btn-send-modal" onClick={() => {alert("¡Copiado!"); setEditingId(null)}}>
+              Copiar y Cerrar
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  </div>
+)}
     </div>
   );
 }

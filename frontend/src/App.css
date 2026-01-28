@@ -155,3 +155,86 @@ textarea {
   flex-direction: column;
   gap: 12px;
 }
+
+/* FONDO OSCURECIDO */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(2, 6, 23, 0.85); /* Fondo oscuro semitransparente */
+  backdrop-filter: blur(4px); /* Efecto de desenfoque moderno */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  padding: 0;
+  margin: 0;
+}
+
+/* CONTENEDOR DEL CORREO (80% ancho, 80% alto) */
+.modal-content {
+  position: relative;
+  width: 80%;
+  height: 80%;
+  background: white;
+  border-radius: 20px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  animation: modalPop 0.3s ease-out;
+}
+
+/* BOTÓN CERRAR */
+.modal-close {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: #f1f5f9;
+  border: none;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  cursor: pointer;
+  color: #64748b;
+  font-weight: bold;
+}
+
+.email-result {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.email-result textarea {
+  flex: 1; /* Hace que el textarea ocupe todo el espacio disponible en el modal */
+  margin: 15px 0;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+  color: #1e293b;
+}
+
+.btn-send-modal {
+  background: var(--accent-blue);
+  color: white;
+  width: 100%;
+  padding: 14px;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+@keyframes modalPop {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+/* Ajuste para móvil para asegurar el 80/80 */
+@media (max-width: 600px) {
+  .modal-content {
+    width: 85%; /* Un poco más ancho en móviles muy pequeños */
+    height: 75%;
+  }
+}
