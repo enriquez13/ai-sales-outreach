@@ -10,19 +10,20 @@
 
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
-html, body {
-  max-width: 100%;
-  overflow-x: hidden; /* Prohíbe el scroll horizontal */
-  position: relative;
+body {
+  background-color: var(--bg-dark);
+  color: var(--text-main);
+  font-family: 'Inter', -apple-system, sans-serif;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
 }
 
 .app-container {
-  width: 100%; /* Cambia 100vw por 100% */
-  max-width: 100%;
-  margin: 0 auto;
-  padding: 20px 16px;
-  box-sizing: border-box; /* Asegura que el padding no sume ancho */
-  overflow-x: hidden;
+  min-height: 100vh;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 16px;
 }
 
 /* HEADER */
@@ -36,18 +37,16 @@ html, body {
 .toggle-mock::after { content: ''; position: absolute; right: 2px; top: 2px; width: 16px; height: 16px; background: white; border-radius: 50%; }
 
 /* CARDS */
-.grid {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  box-sizing: border-box;
-}
+.grid { display: flex; flex-direction: column; gap: 12px; }
 
 .card {
-  width: 100%; /* Asegura que ocupe todo el ancho disponible pero no más */
-  box-sizing: border-box;
-  margin: 0; 
+  background: white;
+  color: #1e293b;
+  border-radius: 16px;
+  padding: 16px;
+  transition: all 0.3s ease;
+  position: relative;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 
 .card-content { display: flex; justify-content: space-between; align-items: center; }
