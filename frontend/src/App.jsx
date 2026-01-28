@@ -19,7 +19,7 @@ function App() {
   const handleGenerate = async (lead) => {
     setEditingId(lead.id);
     setIsGenerating(true);
-    setCustomMessage("🪄 A IA está redigindo o e-mail...");
+    setCustomMessage(""); // Limpiamos para mostrar el esqueleto
 
     const endpoint =
       lead.stage === "followup"
@@ -31,9 +31,7 @@ function App() {
         method: "POST",
         headers: { "Content-Type": "application/json" }
       });
-
       if (!res.ok) throw new Error("Servidor ocupado");
-
       const data = await res.json();
       setCustomMessage(data.email);
     } catch (err) {
@@ -46,63 +44,73 @@ function App() {
   return (
     <div className="app-container">
       <header className="header">
-        <h1>🚀 AI Sales Outreach</h1>
-        <p style={{ color: "#94a3b8" }}>
-          Primeiro contato e acompanhamento automático
-        </p>
+        <div className="header-top">
+          <div className="logo">
+             <span className="logo-icon">🧠</span>
+             <span>AI Sales Connect</span>
+          </div>
+          <div className="user-avatar">AE</div>
+        </div>
+        <div className="status-bar">
+           <span>All Leads</span>
+           <div className="toggle-mock"></div>
+        </div>
       </header>
 
-      <div className="grid">
+      <main className="grid">
         {leads.map(l => (
-          <div key={l.id} className="card">
-
-            <span className="status-badge">
-              {l.stage === "followup" ? "Follow-up" : "New"}
-            </span>
-
-            <h2>{l.name}</h2>
-
-            <p style={{ color: "#94a3b8", marginBottom: "20px" }}>
-              {l.company}
-            </p>
-
-            {editingId === l.id ? (
-              <div className="editor">
-                <textarea
-                  value={customMessage}
-                  readOnly={isGenerating}
-                />
-
-                <div className="btn-group">
-                  <button
-                    className="btn-cancel"
-                    onClick={() => setEditingId(null)}
-                  >
-                    Descartar
-                  </button>
-
-                  <button
-                    className="btn-send"
-                    disabled={isGenerating}
-                    onClick={() => alert("Correo aprobado")}
-                  >
-                    Aprobar correo
-                  </button>
+          <div key={l.id} className={`card ${editingId === l.id ? 'active' : ''}`}>
+            <div className="card-content">
+              <div className="card-info">
+                <div className="name-row">
+                  <h2>{l.name}</h2>
+                  <span className={`status-badge ${l.stage}`}>
+                    {l.stage === "followup" ? "Follow-up" : "New"}
+                  </span>
                 </div>
+                <p className="company-name">{l.company}</p>
+                {l.stage === "followup" && <p className="timer">🕒 5 days</p>}
               </div>
-            ) : (
-              <button
-                className="btn-primary"
+              
+              <button 
+                className="action-button" 
                 onClick={() => handleGenerate(l)}
+                disabled={isGenerating && editingId === l.id}
               >
-                {l.stage === "followup"
-                  ? "Generar Follow-up"
-                  : "Generar Primer Email"}
+                {isGenerating && editingId === l.id ? (
+                  <div className="spinner"></div>
+                ) : (
+                  <span className="bolt-icon">⚡</span>
+                )}
               </button>
+            </div>
+
+            {editingId === l.id && (
+              <div className="editor-overlay">
+                {isGenerating ? (
+                  <div className="skeleton-container">
+                    <div className="skeleton-line"></div>
+                    <div className="skeleton-line"></div>
+                    <div className="skeleton-line short"></div>
+                  </div>
+                ) : (
+                  <div className="email-result">
+                    <h3>AI-Crafted Email</h3>
+                    <textarea
+                      value={customMessage}
+                      onChange={(e) => setCustomMessage(e.target.value)}
+                    />
+                    <div className="btn-group">
+                      <button className="btn-cancel" onClick={() => setEditingId(null)}>Descartar</button>
+                      <button className="btn-send" onClick={() => {alert("Copiado!"); setEditingId(null)}}>Copiar Email</button>
+                    </div>
+                  </div>
+                )}
+              </div>
             )}
           </div>
         ))}
-      </div>
+      </main>
     </div>
   );
 }
