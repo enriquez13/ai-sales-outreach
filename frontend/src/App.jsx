@@ -23,6 +23,23 @@ function App() {
       return;
     }
 
+    const handleSendEmail = (lead, message) => {
+  // Definimos el asunto según el estado
+  const subject = lead.stage === "followup" 
+    ? `Seguimiento: Oportunidad con ${lead.company}` 
+    : `Propuesta de colaboración - ${lead.company}`;
+    
+  // Construimos el link mailto
+  // Importante: encodeURIComponent evita que los espacios rompan el link
+  const mailtoLink = `mailto:${lead.email || ''}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(message)}`;
+  
+  // Abrimos Outlook automáticamente
+  window.location.href = mailtoLink;
+  
+  // Opcional: Cerramos el modal después de enviar
+  setEditingId(null);
+};
+
     setEditingId(lead.id);
     setIsGenerating(true);
     setCustomMessage(""); // Limpiar para mostrar el estado de carga
@@ -165,10 +182,13 @@ function App() {
             spellCheck="false"
           />
           <div className="btn-group-modal">
-            <button className="btn-send-modal" onClick={() => {alert("¡Copiado!"); setEditingId(null)}}>
-              Copiar y Cerrar
-            </button>
-          </div>
+  <button 
+    className="btn-send-modal" 
+    onClick={() => handleSendEmail(leads.find(l => l.id === editingId), customMessage)}
+  >
+    📧 Enviar vía Outlook
+  </button>
+</div>
         </div>
       )}
     </div>

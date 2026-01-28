@@ -22,18 +22,21 @@ leads = [
     {
         "id": 1,
         "name": "Allan",
+        "email": "jhoneriquez@unicauca.edu.co",
         "company": "Hypera",
         "stage": "new"
     },
     {
         "id": 2,
         "name": "Maria Gonzalez",
+        "email": "jhoneriquez@unicauca.edu.co",
         "company": "Tech Solutions",
         "stage": "new"
     },
     {
         "id": 3,
         "name": "Sara Rubio",
+        "email": "jhoneriquez@unicauca.edu.co",
         "company": "TechCorp",
         "stage": "followup"
     }
@@ -118,7 +121,7 @@ def followup_email(lead_id: int):
     prompt = f"""
 Você é Felipe Ommundsen, Enterprise Sales da Delfia.
 
-Escreva um SEGUNDO email de follow-up (após 5 dias) em português.
+Escreva um email de follow-up (após 5 dias) em português.
 
 REGRAS OBRIGATÓRIAS:
 - NÃO diga que houve conversa anterior
