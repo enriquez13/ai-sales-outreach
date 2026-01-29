@@ -238,3 +238,16 @@ textarea {
     height: 75%;
   }
 }
+
+.timer {
+  font-size: 0.75rem;
+  color: #64748b; /* Un gris suave */
+  background: #f1f5f9; /* Un fondo gris muy claro */
+  padding: 4px 8px;
+  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 8px;
+  font-weight: 500;
+}

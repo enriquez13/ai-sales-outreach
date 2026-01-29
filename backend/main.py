@@ -1,4 +1,5 @@
 import os
+from datetime import datetime, timedelta
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
@@ -142,6 +143,9 @@ def complete_lead(lead_id: int):
     if not lead:
         return {"error": "Lead no encontrado"}
     
-    # Cambiamos el estado a followup
+    # Cambiamos el estado y guardamos la metadata
     lead["stage"] = "followup"
+    lead["sent_at"] = datetime.now().isoformat() # Convertimos a texto para evitar errores de JSON
+    lead["days_left"] = 5 
+    
     return {"message": "Lead actualizado", "lead": lead}
