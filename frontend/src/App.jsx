@@ -138,25 +138,31 @@ const handleSendEmail = async (lead, message) => {
       </header>
 
       <main className="main-content">
+        {/* CONTENEDOR 1: NEW LEADS */}
         <section className="category-section">
-          <h3 className="section-title">
-            Novos Prospectos
-            <span className="count-pill">{leads.filter(l => l.stage !== 'followup').length}</span>
-          </h3>
-          <div className="grid-inner">
-            {leads.filter(l => l.stage !== 'followup').map(l => renderCard(l))}
-          </div>
-        </section>
+  <h3 className="section-title">
+    Nuevos Prospectos 
+    <span className="count-pill">
+      {leads.filter(l => l.stage === 'new').length}
+    </span>
+  </h3>
+  <div className="grid-inner">
+    {leads.filter(l => l.stage === 'new').map(l => renderCard(l))}
+  </div>
+</section>
 
-        <section className="category-section">
-          <h3 className="section-title">
-            Acompanhamentos Pendentes
-            <span className="count-pill">{leads.filter(l => l.stage === 'followup').length}</span>
-          </h3>
-          <div className="grid-inner">
-            {leads.filter(l => l.stage === 'followup').map(l => renderCard(l))}
-          </div>
-        </section>
+        {/* CONTENEDOR 2: FOLLOW-UP */}
+<section className="category-section">
+  <h3 className="section-title">
+    Seguimientos Pendientes
+    <span className="count-pill">
+      {leads.filter(l => l.stage === 'followup').length}
+    </span>
+  </h3>
+  <div className="grid-inner">
+    {leads.filter(l => l.stage === 'followup').map(l => renderCard(l))}
+  </div>
+</section>
       </main>
 
       {/* MODAL CORREGIDO */}
@@ -174,7 +180,7 @@ const handleSendEmail = async (lead, message) => {
               </div>
             ) : (
               <div className="email-result">
-                <h3>AI-Crafted Email</h3>
+                <h3>Email Criado por IA</h3>
                 <textarea
                   value={customMessage}
                   onChange={(e) => setCustomMessage(e.target.value)}
