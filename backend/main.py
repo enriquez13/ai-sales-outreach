@@ -18,7 +18,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# LEADS
+# LEADS - Agregué 'sent_at' y 'days_left' a Sara para que veas cómo funciona el cálculo
 leads = [
     {
         "id": 1,
@@ -39,21 +39,30 @@ leads = [
         "name": "Sara Rubio",
         "email": "jhoneriquez@unicauca.edu.co",
         "company": "TechCorp",
-        "stage": "followup"
+        "stage": "followup",
+        "sent_at": (datetime.now() - timedelta(days=2)).isoformat(), # Simulamos que se envió hace 2 días
+        "days_left": 3
     }
 ]
 
 @app.get("/leads")
 def get_leads():
+    """Calcula dinámicamente los días restantes antes de enviar la lista"""
+    for lead in leads:
+        if lead["stage"] == "followup" and "sent_at" in lead:
+            # Convertimos el texto ISO a objeto datetime
+            fecha_envio = datetime.fromisoformat(lead["sent_at"])
+            # Calculamos la diferencia
+            diferencia = datetime.now() - fecha_envio
+            # Si pasaron 24h, resta 1 día. max(0, ...) asegura que no baje de 0.
+            lead["days_left"] = max(0, 5 - diferencia.days)
     return leads
 
 
 # PRIMER EMAIL
 @app.post("/generate/first/{lead_id}")
 def first_email(lead_id: int):
-
     lead = next((l for l in leads if l["id"] == lead_id), None)
-
     if not lead:
         return {"email": "Lead no encontrado"}
 
@@ -80,23 +89,19 @@ Delfia
 
 REGRA CRÍTICA: NÃO use asteriscos (**) nem Markdown. Use apenas texto puro.
 """
-
     chat = client.chat.completions.create(
         model="llama-3.1-8b-instant",
         messages=[{"role": "user", "content": prompt}],
         temperature=0.6,
         max_tokens=250,
     )
-
     return {"email": chat.choices[0].message.content}
 
 
 # FOLLOW UP
 @app.post("/generate/followup/{lead_id}")
 def followup_email(lead_id: int):
-
     lead = next((l for l in leads if l["id"] == lead_id), None)
-
     if not lead:
         return {"email": "Lead no encontrado"}
 
@@ -126,14 +131,12 @@ Delfia
 
 REGRA CRÍTICA: NÃO use asteriscos (**) nem Markdown. Use apenas texto puro.
 """
-
     chat = client.chat.completions.create(
         model="llama-3.1-8b-instant",
         messages=[{"role": "user", "content": prompt}],
         temperature=0.6,
         max_tokens=250,
     )
-
     return {"email": chat.choices[0].message.content}
 
 # Endpoint para actualizar el estado del lead
@@ -143,9 +146,9 @@ def complete_lead(lead_id: int):
     if not lead:
         return {"error": "Lead no encontrado"}
     
-    # Cambiamos el estado y guardamos la metadata
+    # Marcamos el inicio del ciclo de seguimiento
     lead["stage"] = "followup"
-    lead["sent_at"] = datetime.now().isoformat() # Convertimos a texto para evitar errores de JSON
+    lead["sent_at"] = datetime.now().isoformat()
     lead["days_left"] = 5 
     
     return {"message": "Lead actualizado", "lead": lead}

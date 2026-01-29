@@ -94,13 +94,11 @@ const handleSendEmail = async (lead, message) => {
   {l.stage === "followup" && (
   <div className="status-row">
     <p className="timer">
-      🕒 Prossiga em {l.days_left || 5} dias
+      {/* Usamos el valor del servidor, si no existe ponemos 5 */}
+      🕒 {l.days_left !== undefined ? `Prossiga em ${l.days_left} dias` : "Calculando..."}
     </p>
-    
     {l.last_sent === 'today' && (
-      <span className="sent-badge">
-        ✓ Enviado hoje
-      </span>
+      <span className="sent-badge">✓ Enviado hoje</span>
     )}
   </div>
 )}
