@@ -119,12 +119,12 @@ const handleSendEmail = async (lead, message) => {
         <div className="header-top">
           <div className="logo">
              <span className="logo-icon">🚀</span>
-             <span>AI Sales Connect</span>
+             <span>Conexão de Vendas com IA</span>
           </div>
           <div className="user-avatar">AE</div>
         </div>
         <div className="status-bar">
-           <span>Gestión de Leads</span>
+           <span>Gestão de Leads</span>
            <div className="toggle-mock"></div>
         </div>
       </header>
@@ -132,7 +132,7 @@ const handleSendEmail = async (lead, message) => {
       <main className="main-content">
         <section className="category-section">
           <h3 className="section-title">
-            Nuevos Prospectos 
+            Novos Prospectos
             <span className="count-pill">{leads.filter(l => l.stage !== 'followup').length}</span>
           </h3>
           <div className="grid-inner">
@@ -142,7 +142,7 @@ const handleSendEmail = async (lead, message) => {
 
         <section className="category-section">
           <h3 className="section-title">
-            Seguimientos Pendientes
+            Acompanhamentos Pendentes
             <span className="count-pill">{leads.filter(l => l.stage === 'followup').length}</span>
           </h3>
           <div className="grid-inner">
@@ -177,7 +177,7 @@ const handleSendEmail = async (lead, message) => {
                     className="btn-send-modal" 
                     onClick={() => handleSendEmail(leads.find(l => l.id === editingId), customMessage)}
                   >
-                    📧 Enviar vía Outlook
+                    📧 Enviar por Email
                   </button>
                 </div>
               </div>
