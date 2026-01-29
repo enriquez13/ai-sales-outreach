@@ -22,28 +22,28 @@ const handleSendEmail = async (lead, message) => {
   
   const subject = `${lead.company} & Delfia (Observabilidade)`;
   const mailtoLink = `mailto:${lead.email || ''}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(message)}`;
-  
-  // Abrimos Outlook
   window.location.href = mailtoLink;
 
-  if (lead.stage === "new") {
-    try {
-      const res = await fetch(`${API_URL}/leads/${lead.id}/complete`, {
-        method: "PATCH",
-      });
-      
-      const data = await res.json(); // Recibimos el lead actualizado del backend
-      
+  try {
+    if (lead.stage === "new") {
+      const res = await fetch(`${API_URL}/leads/${lead.id}/complete`, { method: "PATCH" });
+      const data = await res.json();
       if (res.ok) {
-        // Buscamos el lead en nuestra lista local y lo reemplazamos con la versión del servidor
-        setLeads(prevLeads => 
-          prevLeads.map(l => l.id === lead.id ? data.lead : l)
-        );
+        setLeads(prev => prev.map(l => l.id === lead.id ? data.lead : l));
       }
-    } catch (err) {
-      console.error("Error al actualizar:", err);
+    } 
+    else {
+      // LÓGICA PARA FOLLOW-UP: Reiniciar a 5 días y marcar como enviado hoy
+      setLeads(prev => prev.map(l => 
+        l.id === lead.id 
+          ? { ...l, days_left: 5, last_sent: 'today' } 
+          : l
+      ));
     }
+  } catch (err) {
+    console.error("Error:", err);
   }
+  
   setEditingId(null);
 };
 
@@ -92,10 +92,18 @@ const handleSendEmail = async (lead, message) => {
   
   {/* Lógica limpia para el timer */}
   {l.stage === "followup" && (
+  <div className="status-row">
     <p className="timer">
       🕒 Prossiga em {l.days_left || 5} dias
     </p>
-  )}
+    
+    {l.last_sent === 'today' && (
+      <span className="sent-badge">
+        ✓ Enviado hoje
+      </span>
+    )}
+  </div>
+)}
 </div>
         
         <button 
