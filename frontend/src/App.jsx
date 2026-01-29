@@ -17,18 +17,32 @@ function App() {
   }, []);
 
   // --- FUNCIÓN 1: ENVIAR EMAIL (Mailto) ---
-const handleSendEmail = (lead, message) => {
+const handleSendEmail = async (lead, message) => {
   if (!lead) return;
   
-  // Fijamos el asunto exactamente como lo pides
-  // Usamos el nombre de la empresa que viene del lead + el texto fijo
   const subject = `${lead.company} & Delfia (Observabilidade)`;
-    
-  // Construimos el link mailto con el nuevo asunto fijo
   const mailtoLink = `mailto:${lead.email || ''}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(message)}`;
   
-  // Abrimos Outlook automáticamente
+  // 1. Abrir Outlook
   window.location.href = mailtoLink;
+
+  // 2. Si el lead era 'new', actualizarlo a 'followup'
+  if (lead.stage === "new") {
+    try {
+      const res = await fetch(`${API_URL}/leads/${lead.id}/complete`, {
+        method: "PATCH",
+      });
+      
+      if (res.ok) {
+        // Actualizamos el estado local para que se mueva de lista instantáneamente
+        setLeads(prevLeads => 
+          prevLeads.map(l => l.id === lead.id ? { ...l, stage: "followup" } : l)
+        );
+      }
+    } catch (err) {
+      console.error("Error actualizando estado:", err);
+    }
+  }
   
   setEditingId(null);
 };
@@ -75,7 +89,11 @@ const handleSendEmail = (lead, message) => {
             </span>
           </div>
           <p className="company-name">{l.company}</p>
-          {l.stage === "followup" && <p className="timer">🕒 5 days</p>}
+          {l.stage === "followup" && {l.stage === "followup" && (
+  <p className="timer">
+    🕒 {l.days_left || 5} days {/* Si no existe el campo, por defecto muestra 5 */}
+  </p>
+)}}
         </div>
         
         <button 
@@ -139,7 +157,7 @@ const handleSendEmail = (lead, message) => {
             
             {isGenerating ? (
               <div className="skeleton-container">
-                <p className="loading-text">🪄 Llama 3 redactando...</p>
+                <p className="loading-text">🪄 IA redactando...</p>
                 <div className="skeleton-line"></div>
                 <div className="skeleton-line"></div>
                 <div className="skeleton-line short"></div>

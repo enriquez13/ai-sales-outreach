@@ -134,3 +134,14 @@ REGRA CRÍTICA: NÃO use asteriscos (**) nem Markdown. Use apenas texto puro.
     )
 
     return {"email": chat.choices[0].message.content}
+
+# Endpoint para actualizar el estado del lead
+@app.patch("/leads/{lead_id}/complete")
+def complete_lead(lead_id: int):
+    lead = next((l for l in leads if l["id"] == lead_id), None)
+    if not lead:
+        return {"error": "Lead no encontrado"}
+    
+    # Cambiamos el estado a followup
+    lead["stage"] = "followup"
+    return {"message": "Lead actualizado", "lead": lead}
