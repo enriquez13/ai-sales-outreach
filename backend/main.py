@@ -1,15 +1,40 @@
 import os
 from datetime import datetime, timedelta
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from sqlalchemy import create_engine, Column, Integer, String, DateTime
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker, Session
 from dotenv import load_dotenv
 from groq import Groq
 
 load_dotenv()
 
-client = Groq(api_key=os.getenv("GROQ_API_KEY"))
+# --- CONFIGURACIÓN BASE DE DATOS ---
+DATABASE_URL = os.getenv("DATABASE_URL")
+# Nota: Supabase usa postgresql:// pero a veces SQLAlchemy prefiere postgresql+psycopg2://
+if DATABASE_URL and DATABASE_URL.startswith("postgres://"):
+    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
+
+engine = create_engine(DATABASE_URL)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+Base = declarative_base()
+
+# --- MODELO ---
+class Lead(Base):
+    __tablename__ = "leads"
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String)
+    email = Column(String)
+    company = Column(String)
+    stage = Column(String, default="new")
+    sent_at = Column(DateTime, nullable=True)
+
+# Crea la tabla si no existe
+Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
+client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
 app.add_middleware(
     CORSMiddleware,
@@ -18,76 +43,57 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# LEADS - Agregué 'sent_at' y 'days_left' a Sara para que veas cómo funciona el cálculo
-leads = [
-    {
-        "id": 1,
-        "name": "Allan",
-        "email": "jhoneriquez@unicauca.edu.co",
-        "company": "Hypera",
-        "stage": "new"
-    },
-    {
-        "id": 2,
-        "name": "Maria Gonzalez",
-        "email": "jhoneriquez@unicauca.edu.co",
-        "company": "Tech Solutions",
-        "stage": "new"
-    },
-    {
-        "id": 3,
-        "name": "Sara Rubio",
-        "email": "jhoneriquez@unicauca.edu.co",
-        "company": "TechCorp",
-        "stage": "followup",
-        "sent_at": (datetime.now() - timedelta(days=2)).isoformat(), # Simulamos que se envió hace 2 días
-        "days_left": 3
-    }
-]
+# Dependencia de DB
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
+# --- ENDPOINTS ---
 
 @app.get("/leads")
-def get_leads():
-    """Calcula dinámicamente los días restantes antes de enviar la lista"""
-    for lead in leads:
-        if lead["stage"] == "followup" and "sent_at" in lead:
-            # Convertimos el texto ISO a objeto datetime
-            fecha_envio = datetime.fromisoformat(lead["sent_at"])
-            # Calculamos la diferencia
-            diferencia = datetime.now() - fecha_envio
-            # Si pasaron 24h, resta 1 día. max(0, ...) asegura que no baje de 0.
-            lead["days_left"] = max(0, 5 - diferencia.days)
-    return leads
+def get_leads(db: Session = Depends(get_db)):
+    db_leads = db.query(Lead).all()
+    results = []
+    for lead in db_leads:
+        # Convertimos objeto de DB a diccionario para el front
+        l_data = {
+            "id": lead.id,
+            "name": lead.name,
+            "email": lead.email,
+            "company": lead.company,
+            "stage": lead.stage,
+            "sent_at": lead.sent_at.isoformat() if lead.sent_at else None,
+            "days_left": 5
+        }
+        if lead.stage == "followup" and lead.sent_at:
+            diferencia = datetime.now() - lead.sent_at
+            l_data["days_left"] = max(0, 5 - diferencia.days)
+        results.append(l_data)
+    return results
 
-
-# PRIMER EMAIL
 @app.post("/generate/first/{lead_id}")
-def first_email(lead_id: int):
-    lead = next((l for l in leads if l["id"] == lead_id), None)
+def first_email(lead_id: int, db: Session = Depends(get_db)):
+    lead = db.query(Lead).filter(Lead.id == lead_id).first()
     if not lead:
-        return {"email": "Lead no encontrado"}
+        raise HTTPException(status_code=404, detail="Lead no encontrado")
 
     prompt = f"""
 Você é Felipe Ommundsen, Enterprise Sales da Delfia.
-Escreva um PRIMEIRO email de contato para {lead['name']} da empresa {lead['company']}.
-
+Escreva um PRIMEIRO email de contato para {lead.name} da empresa {lead.company}.
 ESTRUTURA OBRIGATÓRIA:
-1. Saudação: "Olá {lead['name']}, boa tarde! Tudo bem?"
+1. Saudação: "Olá {lead.name}, boa tarde! Tudo bem?"
 2. "você já teve contato com a Delfia?"
 3. "Como pioneira e líder em soluções de monitoramento de processos e análise de dados, a Delfia oferece:"
 4. Lista (Use bullets •):
-   • Entregamos significativo impacto nos custos através das soluções Grafana;
-   • Utilizamos a CRIBL para reduzir e rotear dados de TI e segurança de qualquer fonte para qualquer destino reduzindo gastos em até 60%;
-   • Apoiamos e complementamos projetos já existentes com capacidade técnica diferenciada.
-
-5. "Vamos trazer esses ganhos para a {lead['company']}?"
-
-6. Assinatura:
-Grato,
-Felipe Ommundsen
-Enterprise Sales
-Delfia
-
-REGRA CRÍTICA: NÃO use asteriscos (**) nem Markdown. Use apenas texto puro.
+   • Entregamos significativo impacto nos custos através de Grafana;
+   • Reduzimos gastos em até 60% com CRIBL;
+   • Apoiamos projetos com capacidade técnica diferenciada.
+5. "Vamos trazer esses ganhos para a {lead.company}?"
+Assinatura: Grato, Felipe Ommundsen - Delfia.
+REGRA: Texto puro, sem asteriscos.
 """
     chat = client.chat.completions.create(
         model="llama-3.1-8b-instant",
@@ -97,39 +103,22 @@ REGRA CRÍTICA: NÃO use asteriscos (**) nem Markdown. Use apenas texto puro.
     )
     return {"email": chat.choices[0].message.content}
 
-
-# FOLLOW UP
 @app.post("/generate/followup/{lead_id}")
-def followup_email(lead_id: int):
-    lead = next((l for l in leads if l["id"] == lead_id), None)
+def followup_email(lead_id: int, db: Session = Depends(get_db)):
+    lead = db.query(Lead).filter(Lead.id == lead_id).first()
     if not lead:
-        return {"email": "Lead no encontrado"}
+        raise HTTPException(status_code=404, detail="Lead no encontrado")
 
     prompt = f"""
 Você é Felipe Ommundsen, Enterprise Sales da Delfia.
-Escreva um email de FOLLOW-UP para {lead['name']} da empresa {lead['company']}.
-
-ESTRUTURA OBRIGATÓRIA:
-1. Saudação: "Olá {lead['name']}, tudo bem?"
-2. "Seria má idéia ter a Delfia como referência de melhores práticas em observabilidade?"
-3. "Pelo que pesquisei, os temas abaixo poderiam interessar a {lead['company']}:"
-4. Lista técnica (bullets •):
-   • Observabilidade container (Prometheus, Grafana, Elastic Stack)
-   • APM para SAP S/4HANA
-   • Log aggregation centralizado
-   • Distributed tracing para microserviços
-   • Dashboards operacionais em tempo real
-   • Alertas preditivos com ML
-
-5. "Vamos trazer esses ganhos para a {lead['company']}?"
-
-6. Assinatura:
-Grato,
-Felipe Ommundsen
-Enterprise Sales
-Delfia
-
-REGRA CRÍTICA: NÃO use asteriscos (**) nem Markdown. Use apenas texto puro.
+Escreva um email de FOLLOW-UP para {lead.name} da empresa {lead.company}.
+ESTRUTURA:
+1. "Olá {lead.name}, tudo bem?"
+2. "Seria má idéia ter a Delfia como referência em observabilidade?"
+3. "Temas: Observabilidade container, APM SAP S/4HANA, Log aggregation, Tracing."
+4. "Vamos trazer esses ganhos para a {lead.company}?"
+Assinatura: Grato, Felipe Ommundsen - Delfia.
+REGRA: Texto puro, sem asteriscos.
 """
     chat = client.chat.completions.create(
         model="llama-3.1-8b-instant",
@@ -139,16 +128,35 @@ REGRA CRÍTICA: NÃO use asteriscos (**) nem Markdown. Use apenas texto puro.
     )
     return {"email": chat.choices[0].message.content}
 
-# Endpoint para actualizar el estado del lead
 @app.patch("/leads/{lead_id}/complete")
-def complete_lead(lead_id: int):
-    lead = next((l for l in leads if l["id"] == lead_id), None)
+def complete_lead(lead_id: int, db: Session = Depends(get_db)):
+    lead = db.query(Lead).filter(Lead.id == lead_id).first()
     if not lead:
-        return {"error": "Lead no encontrado"}
+        raise HTTPException(status_code=404, detail="Lead no encontrado")
     
-    # Marcamos el inicio del ciclo de seguimiento
-    lead["stage"] = "followup"
-    lead["sent_at"] = datetime.now().isoformat()
-    lead["days_left"] = 5 
-    
-    return {"message": "Lead actualizado", "lead": lead}
+    lead.stage = "followup"
+    lead.sent_at = datetime.now()
+    db.commit()
+    db.refresh(lead)
+    return {"message": "Lead actualizado", "lead": {"id": lead.id, "stage": lead.stage, "days_left": 5}}
+
+# OPCIONAL: Cargar datos iniciales automáticamente al arrancar
+#@app.on_event("startup")
+#def seed_db():
+#    print("Iniciando carga de datos de prueba...")
+#    db = SessionLocal()
+#    try:
+#        if db.query(Lead).count() == 0:
+#            test_leads = [
+#                Lead(name="Allan", email="jhoneriquez@unicauca.edu.co", company="Hypera", stage="new"),
+#                Lead(name="Maria Gonzalez", email="jhoneriquez@unicauca.edu.co", company="Tech Solutions", stage="new")
+#            ]
+#            db.add_all(test_leads)
+#            db.commit()
+#            print("✅ Leads de prueba insertados con éxito")
+#        else:
+#            print("ℹ️ La base de datos ya tiene información, no se insertó nada.")
+#    except Exception as e:
+#        print(f"❌ Error en seed_db: {e}")
+#    finally:
+#        db.close()
