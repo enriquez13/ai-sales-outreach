@@ -60,27 +60,24 @@ def first_email(lead_id: int):
 Você é Felipe Ommundsen, Enterprise Sales da Delfia.
 Escreva um PRIMEIRO email de contato para {lead['name']} da empresa {lead['company']}.
 
-ESTRUTURA OBRIGATÓRIA (Siga exatamente esta ordem):
+ESTRUTURA OBRIGATÓRIA:
 1. Saudação: "Olá {lead['name']}, boa tarde! Tudo bem?"
-2. Pergunta de gancho: "você já teve contato com a Delfia?"
-3. Declaração de autoridade: "Como **pioneira e líder**:"
-4. Lista de benefícios (Use exatamente estes 3 bullets com as negritas indicadas):
-   • Entregamos significativo impacto nos custos através das soluções **Grafana**;
-   • Utilizamos a **CRIBL** para reduzir e rotear dados de TI e segurança de qualquer fonte para qualquer destino reduzindo gastos em até 60%;
-   • Apoiamos e complementamos projetos já existentes com **capacidade técnica** diferenciada.
+2. "você já teve contato com a Delfia?"
+3. "Como pioneira e líder em soluções de monitoramento de processos e análise de dados, a Delfia oferece:"
+4. Lista (Use bullets •):
+   • Entregamos significativo impacto nos custos através das soluções Grafana;
+   • Utilizamos a CRIBL para reduzir e rotear dados de TI e segurança de qualquer fonte para qualquer destino reduzindo gastos em até 60%;
+   • Apoiamos e complementamos projetos já existentes com capacidade técnica diferenciada.
 
-5. Call to Action: "Vamos trazer esses ganhos para a {lead['company']}?"
+5. "Vamos trazer esses ganhos para a {lead['company']}?"
 
 6. Assinatura:
 Grato,
-**Felipe Ommundsen**
+Felipe Ommundsen
 Enterprise Sales
 Delfia
 
-REGRAS DE FORMATAÇÃO:
-- Use bullets (•) e não hifens.
-- Respeite as negritas (**) conforme o modelo.
-- NÃO adicione texto extra, introduções ou conclusões além do solicitado.
+REGRA CRÍTICA: NÃO use asteriscos (**) nem Markdown. Use apenas texto puro.
 """
 
     chat = client.chat.completions.create(
@@ -104,32 +101,29 @@ def followup_email(lead_id: int):
 
     prompt = f"""
 Você é Felipe Ommundsen, Enterprise Sales da Delfia.
-Escreva um email de FOLLOW-UP (após 5 dias) para {lead['name']} da empresa {lead['company']}.
+Escreva um email de FOLLOW-UP para {lead['name']} da empresa {lead['company']}.
 
-ESTRUTURA OBRIGATÓRIA (Siga exatamente esta ordem):
+ESTRUTURA OBRIGATÓRIA:
 1. Saudação: "Olá {lead['name']}, tudo bem?"
-2. Pergunta de gancho: "Seria má idéia ter a **Delfia** como referência de melhores práticas em **observabilidade**?"
-3. Contexto: "Pelo que pesquisei, os temas abaixo poderiam interessar a {lead['company']}:"
-4. Lista técnica (Use exatamente estes 6 bullets):
+2. "Seria má idéia ter a Delfia como referência de melhores práticas em observabilidade?"
+3. "Pelo que pesquisei, os temas abaixo poderiam interessar a {lead['company']}:"
+4. Lista técnica (bullets •):
    • Observabilidade container (Prometheus, Grafana, Elastic Stack)
-   • APM (Application Performance Monitoring) para SAP S/4HANA
+   • APM para SAP S/4HANA
    • Log aggregation centralizado
    • Distributed tracing para microserviços
    • Dashboards operacionais em tempo real
    • Alertas preditivos com ML
 
-5. Call to Action: "Vamos trazer esses ganhos para a {lead['company']}?"
+5. "Vamos trazer esses ganhos para a {lead['company']}?"
 
 6. Assinatura:
 Grato,
-**Felipe Ommundsen**
+Felipe Ommundsen
 Enterprise Sales
 Delfia
 
-REGRAS DE FORMATAÇÃO:
-- Use bullets (•) exatamente como no modelo.
-- NÃO invente introduções.
-- Mantenha as negritas (**) em Delfia, observabilidade e no nome da assinatura.
+REGRA CRÍTICA: NÃO use asteriscos (**) nem Markdown. Use apenas texto puro.
 """
 
     chat = client.chat.completions.create(
