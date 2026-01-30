@@ -8,6 +8,7 @@ function App() {
   const [isGenerating, setIsGenerating] = useState(false);
 
   const API_URL = "https://ai-sales-outreach-6umb.onrender.com";
+  
 
   useEffect(() => {
     fetch(`${API_URL}/leads`)
@@ -47,6 +48,21 @@ const handleSendEmail = async (lead, message) => {
   setEditingId(null);
 };
 
+const formatLastSent = (dateStr) => {
+  if (!dateStr) return "";
+  const date = new Date(dateStr);
+  const now = new Date();
+  
+  const isToday = date.toDateString() === now.toDateString();
+  const options = { hour: '2-digit', minute: '2-digit' };
+  const time = date.toLocaleTimeString([], options);
+
+  if (isToday) return `Enviado hoje às ${time}`;
+  
+  const dayOptions = { day: 'numeric', month: 'short' };
+  return `Enviado em ${date.toLocaleDateString([], dayOptions)} às ${time}`;
+};
+
   // --- FUNCIÓN 2: GENERAR CON IA ---
   const handleGenerate = async (lead) => {
     if (editingId === lead.id) {
@@ -78,43 +94,66 @@ const handleSendEmail = async (lead, message) => {
     }
   };
 
+  useEffect(() => {
+  const loadLeads = () => {
+    fetch(`${API_URL}/leads`)
+      .then(res => res.json())
+      .then(setLeads)
+      .catch(err => console.error("Error:", err));
+  };
+
+  loadLeads(); // Carga inicial
+
+  // REFRESCO INTELIGENTE: Se activa al volver a la pestaña o cambiar de app
+  window.addEventListener("focus", loadLeads);
+  
+  return () => window.removeEventListener("focus", loadLeads);
+}, []);
+
   const renderCard = (l) => (
     <div key={l.id} className={`card ${editingId === l.id ? 'active' : ''}`}>
       <div className="card-content">
         <div className="card-info">
-  <div className="name-row">
-    <h2>{l.name}</h2>
-    <span className={`status-badge ${l.stage === 'followup' ? 'followup' : 'new'}`}>
-      {l.stage === "followup" ? "Follow-up" : "New"}
-    </span>
-  </div>
-  <p className="company-name">{l.company}</p>
-  
-  {/* Lógica limpia para el timer */}
-  {l.stage === "followup" && (
-  <div className="status-row">
-    <p className="timer">
-      {/* Usamos el valor del servidor, si no existe ponemos 5 */}
-      🕒 {l.days_left !== undefined ? `Prossiga em ${l.days_left} dias` : "Calculando..."}
-    </p>
-    {l.last_sent === 'today' && (
-      <span className="sent-badge">✓ Enviado hoje</span>
-    )}
-  </div>
-)}
-</div>
+          <div className="name-row">
+            <h2>{l.name}</h2>
+            {/* Actualizamos los colores de las etiquetas aquí */}
+            <span className={`status-badge ${l.stage}`}>
+              {l.stage === "followup" ? "Follow-up" : l.stage === "negotiation" ? "Negociação" : "New"}
+            </span>
+          </div>
+          <p className="company-name">{l.company}</p>
+          
+          <div className="status-row">
+            {/* EL TIMER: Solo se ve en Follow-up */}
+            {l.stage === "followup" && (
+              <p className="timer">
+                🕒 {l.days_left !== undefined ? `Prossiga em ${l.days_left} dias` : "Calculando..."}
+              </p>
+            )}
+
+            {/* EL BADGE DE ENVÍO: Se ve en Follow-up Y en Negociación */}
+            {l.sent_at && (
+              <span className="sent-badge">
+                ✓ {formatLastSent(l.sent_at)}
+              </span>
+            )}
+          </div>
+        </div>
         
-        <button 
-          className={`action-button ${editingId === l.id ? 'open' : ''}`} 
-          onClick={() => handleGenerate(l)}
-          disabled={isGenerating && editingId === l.id}
-        >
-          {isGenerating && editingId === l.id ? (
-            <div className="spinner"></div>
-          ) : (
-            <span className="bolt-icon">{editingId === l.id ? '✕' : '⚡'}</span>
-          )}
-        </button>
+        {/* BOTÓN DE ACCIÓN: Solo lo mostramos si NO está en negociación (opcional) */}
+        {l.stage !== "negotiation" && (
+          <button 
+            className={`action-button ${editingId === l.id ? 'open' : ''}`} 
+            onClick={() => handleGenerate(l)}
+            disabled={isGenerating && editingId === l.id}
+          >
+            {isGenerating && editingId === l.id ? (
+              <div className="spinner"></div>
+            ) : (
+              <span className="bolt-icon">{editingId === l.id ? '✕' : '⚡'}</span>
+            )}
+          </button>
+        )}
       </div>
     </div>
   );
@@ -159,6 +198,19 @@ const handleSendEmail = async (lead, message) => {
   </h3>
   <div className="grid-inner">
     {leads.filter(l => l.stage === 'followup').map(l => renderCard(l))}
+  </div>
+</section>
+
+{/* CONTENEDOR 3: EN NEGOCIACIÓN */}
+<section className="category-section">
+  <h3 className="section-title">
+    Em Negociação 🤝
+    <span className="count-pill">
+      {leads.filter(l => l.stage === 'negotiation').length}
+    </span>
+  </h3>
+  <div className="grid-inner">
+    {leads.filter(l => l.stage === 'negotiation').map(l => renderCard(l))}
   </div>
 </section>
       </main>

@@ -241,3 +241,16 @@ textarea {
   from { opacity: 0; transform: translateY(5px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
+/* Color para la nueva etapa */
+.status-badge.negotiation {
+  background-color: #d1fae5; /* Verde clarito */
+  color: #065f46;            /* Verde oscuro */
+}
+
+/* Estilo para que el badge de enviado se vea limpio */
+.sent-badge {
+  font-size: 0.75rem;
+  color: #6b7280;
+  font-weight: 500;
+}

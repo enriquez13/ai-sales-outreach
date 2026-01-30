@@ -71,6 +71,7 @@ def get_leads(db: Session = Depends(get_db)):
             "company": lead.company,
             "stage": lead.stage,
             "sent_at": lead.sent_at.isoformat() if lead.sent_at else None,
+            "sent_time": lead.sent_at.strftime("%H:%M") if lead.sent_at else None, 
             "days_left": 5
         }
         if lead.stage == "followup" and lead.sent_at:
@@ -139,8 +140,32 @@ def complete_lead(lead_id: int, db: Session = Depends(get_db)):
     if not lead:
         raise HTTPException(status_code=404, detail="Lead no encontrado")
     
-    lead.stage = "followup"
+    # Lógica de progresión:
+    if lead.stage == "new":
+        lead.stage = "followup"
+    elif lead.stage == "followup":
+        lead.stage = "negotiation"  # <--- Aquí nace la tercera caja
+    
     lead.sent_at = datetime.now()
     db.commit()
     db.refresh(lead)
-    return {"message": "Lead actualizado", "lead": {"id": lead.id, "stage": lead.stage, "days_left": 5}}
+    
+    # Enviamos los datos actualizados al frontend
+    return {
+        "message": "Progresso atualizado", 
+        "lead": {
+            "id": lead.id, 
+            "stage": lead.stage, 
+            "sent_at": lead.sent_at.isoformat()
+        }
+    }
+
+@app.patch("/leads/{lead_id}/negotiation")
+def move_to_negotiation(lead_id: int, db: Session = Depends(get_db)):
+    lead = db.query(Lead).filter(Lead.id == lead_id).first()
+    if not lead:
+        raise HTTPException(status_code=404, detail="Lead no encontrado")
+    
+    lead.stage = "negotiation" # Nuevo estado
+    db.commit()
+    return {"message": "Lead movido a negociación"}
