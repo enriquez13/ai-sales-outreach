@@ -23,26 +23,22 @@ const handleSendEmail = async (lead, message) => {
   
   const subject = `${lead.company} & Delfia (Observabilidade)`;
   const mailtoLink = `mailto:${lead.email || ''}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(message)}`;
+  
+  // Abrimos el correo
   window.location.href = mailtoLink;
 
   try {
-    if (lead.stage === "new") {
-      const res = await fetch(`${API_URL}/leads/${lead.id}/complete`, { method: "PATCH" });
-      const data = await res.json();
-      if (res.ok) {
-        setLeads(prev => prev.map(l => l.id === lead.id ? data.lead : l));
-      }
-    } 
-    else {
-      // LÓGICA PARA FOLLOW-UP: Reiniciar a 5 días y marcar como enviado hoy
-      setLeads(prev => prev.map(l => 
-        l.id === lead.id 
-          ? { ...l, days_left: 5, last_sent: 'today' } 
-          : l
-      ));
+    // Llamamos al backend para completar la etapa
+    const res = await fetch(`${API_URL}/leads/${lead.id}/complete`, { method: "PATCH" });
+    const data = await res.json();
+
+    if (res.ok) {
+      // ACTUALIZACIÓN MAESTRA:
+      // Usamos 'data.lead' que viene del servidor (ya trae el nuevo stage: negotiation)
+      setLeads(prev => prev.map(l => l.id === lead.id ? { ...l, ...data.lead } : l));
     }
   } catch (err) {
-    console.error("Error:", err);
+    console.error("Error al actualizar estado:", err);
   }
   
   setEditingId(null);
