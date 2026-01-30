@@ -37,7 +37,7 @@ class Lead(Base):
     sent_at = Column(DateTime, nullable=True)
 
 # Crea la tabla si no existe
-Base.metadata.create_all(bind=engine)
+# Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 client = Groq(api_key=os.getenv("GROQ_API_KEY"))
