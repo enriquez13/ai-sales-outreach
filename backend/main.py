@@ -19,8 +19,7 @@ if DATABASE_URL and DATABASE_URL.startswith("postgres://"):
 engine = create_engine(
     DATABASE_URL,
     pool_pre_ping=True,
-    pool_size=3,
-    max_overflow=5,
+    connect_args={"connect_timeout": 10} # Añade esto
 )
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
@@ -145,24 +144,3 @@ def complete_lead(lead_id: int, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(lead)
     return {"message": "Lead actualizado", "lead": {"id": lead.id, "stage": lead.stage, "days_left": 5}}
-
-# OPCIONAL: Cargar datos iniciales automáticamente al arrancar
-#@app.on_event("startup")
-#def seed_db():
-#    print("Iniciando carga de datos de prueba...")
-#    db = SessionLocal()
-#    try:
-#        if db.query(Lead).count() == 0:
-#            test_leads = [
-#                Lead(name="Allan", email="jhoneriquez@unicauca.edu.co", company="Hypera", stage="new"),
-#                Lead(name="Maria Gonzalez", email="jhoneriquez@unicauca.edu.co", company="Tech Solutions", stage="new")
-#            ]
-#            db.add_all(test_leads)
-#            db.commit()
-#            print("✅ Leads de prueba insertados con éxito")
-#        else:
-#            print("ℹ️ La base de datos ya tiene información, no se insertó nada.")
-#    except Exception as e:
-#        print(f"❌ Error en seed_db: {e}")
-#    finally:
-#        db.close()
