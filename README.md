@@ -106,8 +106,11 @@ ai-sales-outreach/
 ---
 
 ## 🎨 Screenshots
-
-[> Add screenshots of your application here to showcase the UI](https://github.com/enriquez13/ai-sales-outreach/issues/1#issue-3911629323)
+### Dashboard View!
+[App](https://github.com/enriquez13/ai-sales-outreach/issues/1#issue-3911629323)
+### Email Generation Interface
+> <img alt="Image" width="1103" height="523" src="https://private-user-images.githubusercontent.com/45666593/546676423-264b8ab8-50f2-43c1-8677-6832112e43d9.png?jwt=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3NzA1MTA2MDQsIm5iZiI6MTc3MDUxMDMwNCwicGF0aCI6Ii80NTY2NjU5My81NDY2NzY0MjMtMjY0YjhhYjgtNTBmMi00M2MxLTg2NzctNjgzMjExMmU0M2Q5LnBuZz9YLUFtei1BbGdvcml0aG09QVdTNC1ITUFDLVNIQTI1NiZYLUFtei1DcmVkZW50aWFsPUFLSUFWQ09EWUxTQTUzUFFLNFpBJTJGMjAyNjAyMDglMkZ1cy1lYXN0LTElMkZzMyUyRmF3czRfcmVxdWVzdCZYLUFtei1EYXRlPTIwMjYwMjA4VDAwMjUwNFomWC1BbXotRXhwaXJlcz0zMDAmWC1BbXotU2lnbmF0dXJlPTg4ZTA1MGNjOGE1MmMwODI2Y2M1MjhlMmYxNTY3MWMxNTEwNzVjNDUzZjY3ODQ2NGY1ZjE4OWI4MzRkOTUzNWYmWC1BbXotU2lnbmVkSGVhZGVycz1ob3N0In0.B7JkbjNcLcY8Krw4Rg3CcSW6i4-MvlXc9IsaVPGY3gw">
+ 
 
 ---
 
