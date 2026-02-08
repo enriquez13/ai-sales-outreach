@@ -107,7 +107,7 @@ ai-sales-outreach/
 
 ## 🎨 Screenshots
 
-> Add screenshots of your application here to showcase the UI
+[> Add screenshots of your application here to showcase the UI](https://github.com/enriquez13/ai-sales-outreach/issues/1#issue-3911629323)
 
 ---
 
