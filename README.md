@@ -149,7 +149,7 @@ This project is open source and available under the MIT License.
 **Alejandro Enríquez**
 
 - GitHub: [@enriquez13](https://github.com/enriquez13)
-- LinkedIn: [alejandro-enriquez](https://linkedin.com/in/alejandro-enriquez-3611931b3)
+- LinkedIn: [alejandro-enriquez](https://www.linkedin.com/in/alejandro-enr%C3%ADquez-3611931b3/)
 - Email: alejandroenriquez@usp.br
 
 ---
