@@ -33,7 +33,7 @@ def get_db():
     finally:
         db.close()
 
-@app.get("/api/leads")
+@app.get("leads")
 def get_leads(db: Session = Depends(get_db)):
     db_leads = db.query(Lead).all()
     results = []
@@ -54,7 +54,7 @@ def get_leads(db: Session = Depends(get_db)):
         results.append(l_data)
     return results
 
-@app.patch("/api/leads/{lead_id}/complete")
+@app.patch("/leads/{lead_id}/complete")
 def complete_lead(lead_id: int, db: Session = Depends(get_db)):
     lead = db.query(Lead).filter(Lead.id == lead_id).first()
     if not lead:
@@ -78,7 +78,7 @@ def complete_lead(lead_id: int, db: Session = Depends(get_db)):
         }
     }
 
-@app.patch("/api/leads/{lead_id}/negotiation")
+@app.patch("/leads/{lead_id}/negotiation")
 def move_to_negotiation(lead_id: int, db: Session = Depends(get_db)):
     lead = db.query(Lead).filter(Lead.id == lead_id).first()
     if not lead:

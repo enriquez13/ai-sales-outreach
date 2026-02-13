@@ -33,7 +33,7 @@ def get_db():
     finally:
         db.close()
 
-@app.post("/api/generate/first/{lead_id}")
+@app.post("generate/first/{lead_id}")
 def first_email(lead_id: int, db: Session = Depends(get_db)):
     lead = db.query(Lead).filter(Lead.id == lead_id).first()
     if not lead:
@@ -62,7 +62,7 @@ REGRA: Texto puro, sem asteriscos.
     )
     return {"email": chat.choices[0].message.content}
 
-@app.post("/api/generate/followup/{lead_id}")
+@app.post("/generate/followup/{lead_id}")
 def followup_email(lead_id: int, db: Session = Depends(get_db)):
     lead = db.query(Lead).filter(Lead.id == lead_id).first()
     if not lead:
