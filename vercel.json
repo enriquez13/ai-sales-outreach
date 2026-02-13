@@ -7,14 +7,18 @@
       "config": { "distDir": "dist" }
     },
     {
-      "src": "api/**/*.py",
+      "src": "api/*.py",
       "use": "@vercel/python"
     }
   ],
   "rewrites": [
     {
-      "source": "/api/(.*)",
-      "destination": "api/$1"
+      "source": "/api/leads",
+      "destination": "/api/leads.py"
+    },
+    {
+      "source": "/api/generate",
+      "destination": "/api/generate.py"
     },
     {
       "source": "/((?!api/).*)",
