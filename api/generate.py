@@ -86,3 +86,5 @@ REGRA: Texto puro, sem asteriscos.
         max_tokens=250,
     )
     return {"email": chat.choices[0].message.content}
+# Handler para Vercel 
+handler = app

@@ -87,3 +87,5 @@ def move_to_negotiation(lead_id: int, db: Session = Depends(get_db)):
     lead.stage = "negotiation"
     db.commit()
     return {"message": "Lead movido a negociación"}
+# Handler para Vercel 
+handler = app
