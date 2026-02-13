@@ -7,7 +7,7 @@ function App() {
   const [customMessage, setCustomMessage] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
 
-  const API_URL = "https://ai-sales-outreach-6umb.onrender.com";
+  const API_URL = "";
   
 
   useEffect(() => {
