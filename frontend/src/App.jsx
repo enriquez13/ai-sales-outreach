@@ -7,7 +7,7 @@ function App() {
   const [customMessage, setCustomMessage] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
 
-  const API_URL = "";
+  const API_URL = "/api";
   
 
   useEffect(() => {
@@ -72,11 +72,11 @@ const formatLastSent = (dateStr) => {
 
     const endpoint =
       lead.stage === "followup"
-        ? `/generate/followup/${lead.id}`
-        : `/generate/first/${lead.id}`;
+        ? `/api/generate/followup/${lead.id}`
+        : `/api/generate/first/${lead.id}`;
 
     try {
-      const res = await fetch(`${API_URL}${endpoint}`, {
+      const res = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" }
       });
