@@ -14,15 +14,15 @@
   "rewrites": [
     {
       "source": "/api/leads",
-      "destination": "/api/leads.py"
+      "destination": "api/leads.py"
     },
     {
       "source": "/api/generate",
-      "destination": "/api/generate.py"
+      "destination": "api/generate.py"
     },
     {
       "source": "/((?!api/).*)",
-      "destination": "/frontend/index.html"
+      "destination": "/index.html"
     }
   ]
 }
