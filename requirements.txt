@@ -2,5 +2,3 @@ fastapi
 sqlalchemy
 psycopg2-binary
 groq
-fastapi
-uvicorn
