@@ -7,7 +7,7 @@ function App() {
   const [customMessage, setCustomMessage] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
 
-  const API_URL = "https://ai-sales-outreach-production.up.railway.app/";
+  const API_URL = "https://ai-sales-outreach-production.up.railway.app";
   
 
   useEffect(() => {
@@ -72,8 +72,8 @@ const formatLastSent = (dateStr) => {
 
     const endpoint =
       lead.stage === "followup"
-        ? `/api/generate/followup/${lead.id}`
-        : `/api/generate/first/${lead.id}`;
+        ? `{API_URL}/generate/followup/${lead.id}`
+        : `{API_URL}/generate/first/${lead.id}`;
 
     try {
       const res = await fetch(endpoint, {
