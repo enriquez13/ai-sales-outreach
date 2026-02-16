@@ -1,15 +1,22 @@
-from fastapi import FastAPI
-from mangum import Mangum
+from http.server import BaseHTTPRequestHandler
+import json
 
-app = FastAPI()
-
-@app.get("/api/health")
-def health():
-    return {"status": "ok", "message": "API funcionando!"}
-
-@app.get("/api/leads")  
-def get_leads():
-    return [{"id": 1, "name": "Test", "company": "Test Corp"}]
-
-# ✅ Handler con Mangum (requerido para Vercel)
-handler = Mangum(app, lifespan="off")
+class handler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        if self.path == '/api/health':
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self.end_headers()
+            self.wfile.write(json.dumps({"status": "ok", "message": "API funcionando!"}).encode())
+            return
+        
+        if self.path == '/api/leads':
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self.end_headers()
+            leads = [{"id": 1, "name": "Test", "company": "Test Corp"}]
+            self.wfile.write(json.dumps(leads).encode())
+            return
+        
+        self.send_response(404)
+        self.end_headers()
