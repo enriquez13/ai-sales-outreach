@@ -1,20 +1,26 @@
 from fastapi import FastAPI, Depends, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import create_engine, Column, Integer, String, DateTime
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, Session
 from datetime import datetime
 import os
 
-# Configuración DB (mismo código)
+# Configuración DB
 DATABASE_URL = os.getenv("DATABASE_URL")
 if DATABASE_URL and DATABASE_URL.startswith("postgres://"):
     DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
 
-engine = create_engine(DATABASE_URL, pool_pre_ping=True)
+engine = create_engine(
+    DATABASE_URL,
+    pool_pre_ping=True,
+    connect_args={"connect_timeout": 10}
+)
+
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
-# Modelo (mismo código)
+# Modelo
 class Lead(Base):
     __tablename__ = "leads"
     id = Column(Integer, primary_key=True, index=True)
@@ -26,6 +32,13 @@ class Lead(Base):
 
 app = FastAPI()
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 def get_db():
     db = SessionLocal()
     try:
@@ -33,7 +46,8 @@ def get_db():
     finally:
         db.close()
 
-@app.get("leads")
+# ✅ CORRECCIÓN: Sin /api/ en las rutas
+@app.get("/leads")
 def get_leads(db: Session = Depends(get_db)):
     db_leads = db.query(Lead).all()
     results = []
@@ -87,5 +101,6 @@ def move_to_negotiation(lead_id: int, db: Session = Depends(get_db)):
     lead.stage = "negotiation"
     db.commit()
     return {"message": "Lead movido a negociación"}
-# Handler para Vercel 
+
+# Handler para Vercel
 handler = app

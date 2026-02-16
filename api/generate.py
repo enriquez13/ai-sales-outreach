@@ -1,16 +1,22 @@
 from fastapi import FastAPI, Depends, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import create_engine, Column, Integer, String, DateTime
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, Session
 from groq import Groq
 import os
 
-# Misma configuración DB
+# Configuración DB
 DATABASE_URL = os.getenv("DATABASE_URL")
 if DATABASE_URL and DATABASE_URL.startswith("postgres://"):
     DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
 
-engine = create_engine(DATABASE_URL, pool_pre_ping=True)
+engine = create_engine(
+    DATABASE_URL,
+    pool_pre_ping=True,
+    connect_args={"connect_timeout": 10}
+)
+
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
@@ -26,6 +32,13 @@ class Lead(Base):
 app = FastAPI()
 client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 def get_db():
     db = SessionLocal()
     try:
@@ -33,7 +46,8 @@ def get_db():
     finally:
         db.close()
 
-@app.post("generate/first/{lead_id}")
+# ✅ CORRECCIÓN: Sin /api/ en las rutas
+@app.post("/generate/first/{lead_id}")
 def first_email(lead_id: int, db: Session = Depends(get_db)):
     lead = db.query(Lead).filter(Lead.id == lead_id).first()
     if not lead:
@@ -86,5 +100,6 @@ REGRA: Texto puro, sem asteriscos.
         max_tokens=250,
     )
     return {"email": chat.choices[0].message.content}
-# Handler para Vercel 
+
+# Handler para Vercel
 handler = app
