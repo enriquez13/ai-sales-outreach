@@ -44,7 +44,7 @@ def get_fake_leads():
         }
     ]
 
-@app.post("generate/first/{lead_id}")
+@app.post("/generate/first/{lead_id}")
 def generate_fake_email(lead_id: int):
     # Email fake sin usar Groq
     return {
@@ -52,4 +52,4 @@ def generate_fake_email(lead_id: int):
     }
 
 # Handler para Vercel
-handler = app
+#handler = app
