@@ -22,3 +22,5 @@ def leads():
 @app.post("/generate/first/{lead_id}")
 def gen(lead_id:int):
     return {"email": "ok"}
+
+app = FastAPI()
