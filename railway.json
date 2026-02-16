@@ -4,8 +4,8 @@
     "builder": "NIXPACKS"
   },
   "deploy": {
-    "startCommand": "cd frontend && npm run preview -- --host 0.0.0.0 --port $PORT",
-    "root": "frontend",
+    "startCommand": "uvicorn main:app --host 0.0.0.0 --port $PORT",
+    "root": "backend",
     "restartPolicyType": "ON_FAILURE"
   }
 }

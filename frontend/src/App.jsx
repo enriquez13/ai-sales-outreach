@@ -80,9 +80,9 @@ const formatLastSent = (dateStr) => {
     setCustomMessage(""); 
 
     const endpoint =
-      lead.stage === "followup"
-        ? `{API_URL}/generate/followup/${lead.id}`
-        : `{API_URL}/generate/first/${lead.id}`;
+  lead.stage === "followup"
+    ? `${API_URL}/generate/followup/${lead.id}`  
+    : `${API_URL}/generate/first/${lead.id}`;
 
     try {
       const res = await fetch(endpoint, {
