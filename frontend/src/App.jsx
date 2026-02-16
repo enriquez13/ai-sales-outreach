@@ -10,17 +10,25 @@ function App() {
   const API_URL = "https://ai-sales-outreach-production.up.railway.app";
   
 
-  useEffect(() => {
-    // Cambia esto en tu useEffect
-fetch(`${API_URL}/leads`)
-  .then(res => {
-    if (!res.ok) throw new Error("Error en la respuesta");
-    return res.json();
-  })
-  .then(data => {
-    // Si data no es un array, ponemos uno vacío para que no falle el .filter
-    setLeads(Array.isArray(data) ? data : []);
-  })
+// CORRECCIÓN DE URL (Sin la barra final)
+const API_URL = "https://ai-sales-outreach-production.up.railway.app";
+
+// CORRECCIÓN DE SEGURIDAD PARA .FILTER
+useEffect(() => {
+  fetch(`${API_URL}/leads`)
+    .then(res => {
+      if (!res.ok) throw new Error("Backend no responde");
+      return res.json();
+    })
+    .then(data => {
+      // Forzamos que sea un array para que .filter no rompa la app
+      setLeads(Array.isArray(data) ? data : []);
+    })
+    .catch(err => {
+      console.error("Error:", err);
+      setLeads([]); // Si hay error, lista vacía
+    });
+}, []);
 
   // --- FUNCIÓN 1: ENVIAR EMAIL (Mailto) ---
 const handleSendEmail = async (lead, message) => {
