@@ -11,7 +11,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-@app.get("/api/health")
+@app.get("/health")
 def health_check():
     return {
         "status": "OK",
@@ -20,7 +20,7 @@ def health_check():
         "vercel": "Python serverless está activo"
     }
 
-@app.get("/api/leads")
+@app.get("/leads")
 def get_fake_leads():
     # Datos falsos sin base de datos
     return [
@@ -44,7 +44,7 @@ def get_fake_leads():
         }
     ]
 
-@app.post("/api/generate/first/{lead_id}")
+@app.post("generate/first/{lead_id}")
 def generate_fake_email(lead_id: int):
     # Email fake sin usar Groq
     return {
