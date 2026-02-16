@@ -13,43 +13,12 @@ app.add_middleware(
 
 @app.get("/health")
 def health_check():
-    return {
-        "status": "OK",
-        "message": "API funcionando correctamente!",
-        "timestamp": datetime.now().isoformat(),
-        "vercel": "Python serverless está activo"
-    }
+    return {"status": "ok"}
 
 @app.get("/leads")
-def get_fake_leads():
-    # Datos falsos sin base de datos
-    return [
-        {
-            "id": 1,
-            "name": "María González",
-            "email": "maria@test.com",
-            "company": "Tech Corp",
-            "stage": "new",
-            "sent_at": None,
-            "days_left": 5
-        },
-        {
-            "id": 2,
-            "name": "Carlos Pérez",
-            "email": "carlos@test.com",
-            "company": "Innovation SA",
-            "stage": "followup",
-            "sent_at": "2025-02-10T10:30:00",
-            "days_left": 3
-        }
-    ]
+def leads():
+    return [{"id":1,"name":"test"}]
 
 @app.post("/generate/first/{lead_id}")
-def generate_fake_email(lead_id: int):
-    # Email fake sin usar Groq
-    return {
-        "email": f"Olá! Este es un email de prueba generado para el lead {lead_id}. La API funciona correctamente."
-    }
-
-# Handler para Vercel
-#handler = app
+def gen(lead_id:int):
+    return {"email": "ok"}
