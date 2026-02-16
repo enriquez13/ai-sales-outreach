@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from mangum import Mangum
 
 app = FastAPI()
 
@@ -10,4 +11,5 @@ def health():
 def get_leads():
     return [{"id": 1, "name": "Test", "company": "Test Corp"}]
 
-handler = app
+# ✅ Handler con Mangum (requerido para Vercel)
+handler = Mangum(app, lifespan="off")
