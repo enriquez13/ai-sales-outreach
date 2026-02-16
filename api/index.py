@@ -23,4 +23,3 @@ def leads():
 def gen(lead_id:int):
     return {"email": "ok"}
 
-app = FastAPI()
