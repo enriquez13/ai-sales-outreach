@@ -11,11 +11,16 @@ function App() {
   
 
   useEffect(() => {
-    fetch(`${API_URL}/leads`)
-      .then(res => res.json())
-      .then(setLeads)
-      .catch(err => console.error("Error inicial:", err));
-  }, []);
+    // Cambia esto en tu useEffect
+fetch(`${API_URL}/leads`)
+  .then(res => {
+    if (!res.ok) throw new Error("Error en la respuesta");
+    return res.json();
+  })
+  .then(data => {
+    // Si data no es un array, ponemos uno vacío para que no falle el .filter
+    setLeads(Array.isArray(data) ? data : []);
+  })
 
   // --- FUNCIÓN 1: ENVIAR EMAIL (Mailto) ---
 const handleSendEmail = async (lead, message) => {
