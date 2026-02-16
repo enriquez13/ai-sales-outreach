@@ -7,7 +7,7 @@ function App() {
   const [customMessage, setCustomMessage] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
 
-  const API_URL = "/api";
+  const API_URL = "https://ai-sales-outreach-production.up.railway.app/";
   
 
   useEffect(() => {
