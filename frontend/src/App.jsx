@@ -8,10 +8,6 @@ function App() {
   const [isGenerating, setIsGenerating] = useState(false);
 
   const API_URL = "https://ai-sales-outreach-production.up.railway.app";
-  
-
-// CORRECCIÓN DE URL (Sin la barra final)
-const API_URL = "https://ai-sales-outreach-production.up.railway.app";
 
 // CORRECCIÓN DE SEGURIDAD PARA .FILTER
 useEffect(() => {
